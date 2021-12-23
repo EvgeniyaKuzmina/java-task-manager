@@ -29,7 +29,6 @@ public class Task {
     }
 
     public void setDescription(List<SubTask> description) {
-
         this.description = description;
     }
 
