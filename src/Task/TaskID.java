@@ -1,3 +1,5 @@
+package Task;
+
 import java.util.Random;
 
 // формирует идентификационный номер для задачи.
@@ -12,7 +14,7 @@ public class TaskID {
 
     @Override
     public String toString() {
-        return "TaskID{" +
+        return "Task.TaskID{" +
                 "id=" + id +
                 '}';
     }
