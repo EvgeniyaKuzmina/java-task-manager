@@ -1,4 +1,4 @@
-package Task;
+package task;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ public enum Status {
     public static Status getStatusForEpic(List<SubTask> subTasks) {
         boolean statusNew = false;
         boolean statusDone = false;
-        boolean statusInProgress= false;
+        boolean statusInProgress = false;
         if (subTasks.size() == 0) {
             return NEW;
         }
@@ -30,7 +30,7 @@ public enum Status {
             return IN_PROGRESS;
         } else if (!statusNew && statusDone && !statusInProgress) {
             return DONE;
-        }else {
+        } else {
             return NEW;
         }
     }

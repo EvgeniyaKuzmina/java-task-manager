@@ -1,4 +1,4 @@
-package Task;
+package task;
 
 import java.util.List;
 import java.util.Objects;
@@ -7,22 +7,20 @@ import java.util.Objects;
 public class Epic extends Task {
 
     private final TaskID id;
-    private List<SubTask> subtaskOfEpic;
+    private List<SubTask> subTasks;
 
-
-    public Epic(TaskID id, String name, List<SubTask> subtaskOfEpic, Status status) {
+    public Epic(TaskID id, String name, List<SubTask> subTasks, Status status) {
         super(name, status);
         this.id = id;
-        this.subtaskOfEpic = subtaskOfEpic;
-
+        this.subTasks = subTasks;
     }
 
-    public List<SubTask> getSubtaskOfEpic() {
-        return subtaskOfEpic;
+    public List<SubTask> getSubTasks() {
+        return subTasks;
     }
 
-    public void setSubtaskOfEpic(List<SubTask> subtaskOfEpic) {
-        this.subtaskOfEpic = subtaskOfEpic;
+    public void setSubTasks(List<SubTask> subTasks) {
+        this.subTasks = subTasks;
     }
 
     public TaskID getId() {
@@ -36,7 +34,7 @@ public class Epic extends Task {
         Epic epic = (Epic) o;
         return Objects.equals(getId(), epic.getId()) &&
                 Objects.equals(getName(), epic.getName()) &&
-                Objects.equals(getSubtaskOfEpic(), epic.getSubtaskOfEpic()) &&
+                Objects.equals(getSubTasks(), epic.getSubTasks()) &&
                 Objects.equals(getStatus(), epic.getStatus());
     }
 
@@ -47,7 +45,7 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
-        if (subtaskOfEpic.isEmpty()) {
+        if (subTasks.isEmpty()) {
             return "Task.Epic{" +
                     "id=" + id +
                     ", name='" + name + '\'' +
@@ -57,7 +55,7 @@ public class Epic extends Task {
         return "Task.Epic{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", description=" + subtaskOfEpic +
+                ", description=" + subTasks +
                 ", status=" + status +
                 '}';
     }
