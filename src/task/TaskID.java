@@ -1,21 +1,20 @@
 package task;
 
-import java.util.Random;
-
-// формирует идентификационный номер для задачи.
+// формирует идентификационный номер для задачи
 public class TaskID {
 
-    private final Integer id;
-    private final Random random = new Random();
+    private static long id = 0;
 
     public TaskID() {
-        id = Math.abs(random.nextInt());
+        id++;
+    }
+
+    public static long getId() {
+        return id;
     }
 
     @Override
     public String toString() {
-        return "Task.TaskID{" +
-                "id=" + id +
-                '}';
+        return "TaskID{id=" + id + "}";
     }
 }

@@ -2,23 +2,27 @@ package task;
 
 //данные о подзадаче
 public class SubTask extends Task {
-    private final TaskID epicId;
 
-    public SubTask(String name, Status status, TaskID epicId) {
-        super(name, status);
-        this.epicId = epicId;
+
+    public SubTask(Long id, String name, String description, Status status) {
+        super(id, name, description, status);
     }
 
-    public TaskID getEpicId() {
-        return epicId;
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     @Override
     public String toString() {
         return "SubTask{" +
-                "epicId=" + epicId +
-                ", name='" + name + '\'' +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", id=" + id +
                 ", status=" + status +
-                '}';
+                "}\n";
     }
 }

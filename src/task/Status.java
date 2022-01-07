@@ -2,8 +2,9 @@ package task;
 
 import java.util.List;
 
-// хранит типы статусов задач и получает статус для Эпика
+// хранит типы статусов задач
 public enum Status {
+
     NEW,
     IN_PROGRESS,
     DONE;
@@ -35,4 +36,3 @@ public enum Status {
         }
     }
 }
-

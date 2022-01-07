@@ -3,60 +3,51 @@ package task;
 import java.util.List;
 import java.util.Objects;
 
-//Данные о задаче. Задача может включать или не включать в себя подзадачи
+//данные о главной задаче
 public class Epic extends Task {
 
-    private final TaskID id;
-    private List<SubTask> subTasks;
 
-    public Epic(TaskID id, String name, List<SubTask> subTasks, Status status) {
-        super(name, status);
-        this.id = id;
-        this.subTasks = subTasks;
+    private List<SubTask> subtasks;
+
+    public Epic(Long id, String name, String description, List<SubTask> subtasks, Status status) {
+        super(id, name, description, status);
+        this.subtasks = subtasks;
+
     }
 
-    public List<SubTask> getSubTasks() {
-        return subTasks;
+    public List<SubTask> getSubtasks() {
+        return subtasks;
     }
 
-    public void setSubTasks(List<SubTask> subTasks) {
-        this.subTasks = subTasks;
-    }
-
-    public TaskID getId() {
-        return id;
+    public void setSubtasks(List<SubTask> subtasks) {
+        this.subtasks = subtasks;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Epic)) return false;
+        if (!super.equals(o)) return false;
         Epic epic = (Epic) o;
-        return Objects.equals(getId(), epic.getId()) &&
-                Objects.equals(getName(), epic.getName()) &&
-                Objects.equals(getSubTasks(), epic.getSubTasks()) &&
-                Objects.equals(getStatus(), epic.getStatus());
+        return subtasks.equals(epic.subtasks);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), getName());
+        return Objects.hash(super.hashCode(), subtasks);
     }
 
     @Override
     public String toString() {
-        if (subTasks.isEmpty()) {
-            return "Task.Epic{" +
-                    "id=" + id +
-                    ", name='" + name + '\'' +
-                    ", status=" + status +
-                    '}';
-        }
-        return "Task.Epic{" +
-                "id=" + id +
+        return "Epic{" +
                 ", name='" + name + '\'' +
-                ", description=" + subTasks +
+                ", description='" + description + '\'' +
+                "subtasks=" + subtasks + '\'' +
+                ", id=" + id +
                 ", status=" + status +
-                '}';
+                "}\n";
     }
+
+    // TODO переопределить методы equals и hashcode чтобы сравнивать полученные на вход задачи, и предупреждать о том, что такая задача уже есть
+
 }
