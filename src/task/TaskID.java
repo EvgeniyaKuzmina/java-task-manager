@@ -3,14 +3,14 @@ package task;
 // формирует идентификационный номер для задачи
 public class TaskID {
 
-    private static long id = 0;
+    private long id;
 
     public TaskID() {
-        id++;
+        id = 0;
     }
 
-    public static long getId() {
-        return id;
+    public  long getId() {
+        return ++id;
     }
 
     @Override

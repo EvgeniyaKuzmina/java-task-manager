@@ -6,7 +6,7 @@ public class Task {
 
     protected String name;
     protected String description;
-    protected Long id;
+    protected final Long id;
     protected Status status;
 
     public Task(Long id, String name, String description, Status status) {

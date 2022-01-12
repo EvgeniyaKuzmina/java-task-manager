@@ -6,7 +6,6 @@ import java.util.Objects;
 //данные о главной задаче
 public class Epic extends Task {
 
-
     private List<SubTask> subtasks;
 
     public Epic(Long id, String name, String description, List<SubTask> subtasks, Status status) {
@@ -48,6 +47,5 @@ public class Epic extends Task {
                 "}\n";
     }
 
-    // TODO переопределить методы equals и hashcode чтобы сравнивать полученные на вход задачи, и предупреждать о том, что такая задача уже есть
 
 }
