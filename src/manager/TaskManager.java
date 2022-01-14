@@ -21,13 +21,13 @@ public interface TaskManager {
     List<SubTask> getSubTasks();
 
     // 2.4 Получение задачи любого типа по идентификатору.
-    Task getTaskEpicSubtaskById(Long id);
+    Task getTaskById(Long id);
 
     //2.5 Добавление новой задачи, эпика. Сам объект должен передаваться в качестве параметра.
-    void addNewTaskEpicSubTask(Task newObject);
+    void addTask(Task newObject);
 
       //2.6 Обновление задачи любого типа по идентификатору. Новая версия объекта передаётся в виде параметра.
-    void updateTaskEpicSubtask(Task task);
+    void updateAnyTask(Task task);
 
     // Удаление всех ранее добавленных задач
     void removeAllTask();

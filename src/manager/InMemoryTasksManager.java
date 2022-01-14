@@ -67,7 +67,7 @@ public class InMemoryTasksManager implements TaskManager {
 
     // 2.4 Получение задачи любого типа по идентификатору.
     @Override
-    public Task getTaskEpicSubtaskById(Long id) {
+    public Task getTaskById(Long id) {
         if (id < 0) {
             System.out.println("Ошибка в ID");
             return null;
@@ -92,20 +92,20 @@ public class InMemoryTasksManager implements TaskManager {
 
     //2.5 Добавление новой задачи, эпика, подзадачи. Сам объект должен передаваться в качестве параметра.
     @Override
-    public void addNewTaskEpicSubTask(Task newTask) {
+    public void addTask(Task newTask) {
         if (newTask instanceof Epic) {
             Epic newEpic = (Epic) newTask;
             addNewEpic(newEpic);
         } else if (newTask instanceof SubTask) {
             SubTask newSubTask = (SubTask) newTask;
-            addNewSubtasks(newSubTask);
+            addSubtaskToEpic(newSubTask);
         } else {
             addNewTask(newTask);
         }
     }
 
     //2.5 Добавление новой подзадачи.
-    private void addNewSubtasks(SubTask newSubTask) {
+    private void addSubtaskToEpic(SubTask newSubTask) {
         if (epics.containsKey(newSubTask.getEpicId())) {
             for (SubTask subTask : epics.get(newSubTask.getEpicId()).getSubtasks()) {
                 if (newSubTask.equals(subTask)) {
@@ -114,6 +114,9 @@ public class InMemoryTasksManager implements TaskManager {
                     return;
                 }
             }
+            epics.get(newSubTask.getEpicId()).getSubtasks().add(newSubTask);
+            // добавила эту строку кода, потому что у меня не было реализации,
+            // если добавляем новую подзадачу, то и сам эпик к которому относится подзадача должен автоматически обновляться.
         }
         subtasks.put(newSubTask.getId(), newSubTask);
     }
@@ -129,7 +132,7 @@ public class InMemoryTasksManager implements TaskManager {
         epics.put(newEpic.getId(), newEpic);
     }
 
-    //2.5 Добавление новой задача
+    //2.5 Добавление новой задачи
     private void addNewTask(Task newTask) {
         for (Task task : tasks.values()) {
             if (task.equals(newTask)) {
@@ -143,7 +146,7 @@ public class InMemoryTasksManager implements TaskManager {
 
     //2.6 Обновление задачи любого типа по идентификатору. Новая версия объекта передаётся в виде параметра.
     @Override
-    public void updateTaskEpicSubtask(Task task) {
+    public void updateAnyTask(Task task) {
         if (task instanceof Epic) {
             Epic newEpic = (Epic) task;
             if (epics.containsKey(newEpic.getId())) {
@@ -172,6 +175,7 @@ public class InMemoryTasksManager implements TaskManager {
         epics.get(newEpic.getId()).setStatus(newEpic.getStatus());
         epics.get(newEpic.getId()).setDescription(newEpic.getDescription());
         epics.get(newEpic.getId()).setSubtasks(newEpic.getSubtasks());
+
     }
 
     //обновление Задачи
