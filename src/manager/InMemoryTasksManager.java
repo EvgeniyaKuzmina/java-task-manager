@@ -1,13 +1,10 @@
 package manager;
 
-import task.Epic;
-import task.Status;
-import task.SubTask;
-import task.Task;
+import history.InMemoryHistoryManager;
+import task.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 //управляет задачами
@@ -16,13 +13,18 @@ public class InMemoryTasksManager implements TaskManager {
     private final HashMap<Long, Epic> epics;
     private final HashMap<Long, Task> tasks;
     private final HashMap<Long, SubTask> subtasks;
-    private final List<Task> history;
+    TaskID taskId;
+    private final InMemoryHistoryManager historyManager;
+
+
 
     public InMemoryTasksManager() {
         epics = new HashMap<>();
         tasks = new HashMap<>();
         subtasks = new HashMap<>();
-        history = new LinkedList<>();
+        taskId = new TaskID();
+        historyManager = new InMemoryHistoryManager();
+
     }
 
     // 2.3 Получение списка всех подзадач определённого эпика.
@@ -36,8 +38,10 @@ public class InMemoryTasksManager implements TaskManager {
             System.out.println("Эпика с таким Id нет");
             return null;
         }
-        history();
-        history.add(epics.get(epicId));
+
+        for (SubTask subTask : epics.get(epicId).getSubtasks()) {
+            historyManager.add(subTask);
+        }
         return epics.get(epicId).getSubtasks();
     }
 
@@ -60,9 +64,7 @@ public class InMemoryTasksManager implements TaskManager {
     // 2.1 — Получение списка всех подзадач
     @Override
     public List<SubTask> getSubTasks() {
-        List<SubTask> subTasksName = new ArrayList<>();
-        subTasksName.addAll(subtasks.values());
-        return subTasksName;
+        return new ArrayList<>(subtasks.values());
     }
 
     // 2.4 Получение задачи любого типа по идентификатору.
@@ -73,16 +75,13 @@ public class InMemoryTasksManager implements TaskManager {
             return null;
         }
         if (epics.containsKey(id)) {
-            history();
-            history.add(epics.get(id));
+            historyManager.add(epics.get(id));
             return epics.get(id);
         } else if (tasks.containsKey(id)) {
-            history();
-            history.add(tasks.get(id));
+            historyManager.add(tasks.get(id));
             return tasks.get(id);
         } else if (subtasks.containsKey(id)) {
-            history();
-            history.add(subtasks.get(id));
+            historyManager.add(subtasks.get(id));
             return subtasks.get(id);
         } else {
             System.out.println("Нет задач с таким ID");
@@ -106,18 +105,12 @@ public class InMemoryTasksManager implements TaskManager {
 
     //2.5 Добавление новой подзадачи.
     private void addSubtaskToEpic(SubTask newSubTask) {
-        if (epics.containsKey(newSubTask.getEpicId())) {
-            for (SubTask subTask : epics.get(newSubTask.getEpicId()).getSubtasks()) {
-                if (newSubTask.equals(subTask)) {
-                    System.out.printf("Такая подзадача в эпике %s уже есть",
-                                      epics.get(newSubTask.getEpicId()).getName());
-                    return;
-                }
-            }
-            epics.get(newSubTask.getEpicId()).getSubtasks().add(newSubTask);
-            // добавила эту строку кода, потому что у меня не было реализации,
-            // если добавляем новую подзадачу, то и сам эпик к которому относится подзадача должен автоматически обновляться.
+        Long epicId = newSubTask.getEpicId();
+        if (!epics.containsKey(epicId)) {
+            System.out.println("Эпика с таким ID нет");
+            return;
         }
+        epics.get(epicId).getSubtasks().add(newSubTask);
         subtasks.put(newSubTask.getId(), newSubTask);
     }
 
@@ -198,6 +191,7 @@ public class InMemoryTasksManager implements TaskManager {
         epics.clear();
         tasks.clear();
         subtasks.clear();
+        historyManager.removeAll();
     }
 
     // Удаление ранее добавленных задач по ID
@@ -208,11 +202,19 @@ public class InMemoryTasksManager implements TaskManager {
             return;
         }
         if (epics.containsKey(id)) {
+            Epic epic = epics.get(id);
+            for (SubTask subTask : epic.getSubtasks()) {
+                subtasks.remove(subTask);
+                historyManager.remove(subTask.getId());
+            }
             epics.remove(id);
+            historyManager.remove(id);
         } else if (tasks.containsKey(id)) {
             tasks.remove(id);
+            historyManager.remove(id);
         } else if (subtasks.containsKey(id)) {
             subtasks.remove(id);
+            historyManager.remove(id);
         } else {
             System.out.println("Задач с таким id нет");
         }
@@ -220,7 +222,8 @@ public class InMemoryTasksManager implements TaskManager {
 
     //создание эпика
     @Override
-    public Epic createEpic(Long id, String nameEpic, String description) {
+    public Epic createEpic(String nameEpic, String description) {
+        Long id = taskId.getId();
         List<SubTask> subTasksForEpic = new ArrayList<>();
         for (SubTask subTask : subtasks.values()) {
             if (subTask.getEpicId().equals(id)) {
@@ -230,12 +233,24 @@ public class InMemoryTasksManager implements TaskManager {
         return new Epic(id, nameEpic, description, subTasksForEpic, Status.getStatusForEpic(subTasksForEpic));
     }
 
+    //создание задачи
+    @Override
+    public Task createTask(String nameTask, String description, Status status) {
+        long id = taskId.getId();
+        return new Task(id, nameTask, description,  status);
+    }
+
+    //создание подзадачи
+    @Override
+    public SubTask createSubTask(long epicId, String nameTask, String description, Status status) {
+        long id = taskId.getId();
+        return new SubTask(epicId, id, nameTask, description,  status);
+    }
+
+    // получение истории просмотра
     @Override
     public List<Task> history() {
-        if (history.size() > 10) {
-            history.remove(0);
-        }
-        return history;
+        return historyManager.getHistoryList();
     }
 
 }

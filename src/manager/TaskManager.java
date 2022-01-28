@@ -1,6 +1,7 @@
 package manager;
 
 import task.Epic;
+import task.Status;
 import task.SubTask;
 import task.Task;
 
@@ -26,7 +27,7 @@ public interface TaskManager {
     //2.5 Добавление новой задачи, эпика. Сам объект должен передаваться в качестве параметра.
     void addTask(Task newObject);
 
-      //2.6 Обновление задачи любого типа по идентификатору. Новая версия объекта передаётся в виде параметра.
+    //2.6 Обновление задачи любого типа по идентификатору. Новая версия объекта передаётся в виде параметра.
     void updateAnyTask(Task task);
 
     // Удаление всех ранее добавленных задач
@@ -36,8 +37,15 @@ public interface TaskManager {
     void removeById(Long id);
 
     //создание эпика
-    Epic createEpic(Long id, String nameEpic, String description);
+    Epic createEpic(String nameEpic, String description);
+
+    //создание эпика
+    Task createTask(String nameTask, String description, Status status);
+
+    //создание эпика
+    SubTask createSubTask(long epicId, String nameTask, String description, Status status);
 
     //показывает историю просмотра задач и подзадач
     List<Task> history();
+
 }

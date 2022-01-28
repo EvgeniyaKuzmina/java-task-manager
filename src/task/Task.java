@@ -47,10 +47,12 @@ public class Task {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
+        if(o == null) return false;
         if (!(o instanceof Task)) return false;
         Task task = (Task) o;
-        return name.equals(task.name) && description.equals(task.description) && id.equals(
-                task.id) && status == task.status;
+        return Objects.equals(name, task.name) &&
+                Objects.equals(description, task.description) &&
+                Objects.equals(id, task.id) && Objects.equals(status,task.status);
     }
 
     @Override
