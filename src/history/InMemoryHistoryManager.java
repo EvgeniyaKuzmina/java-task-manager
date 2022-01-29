@@ -63,7 +63,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         // но тогда у меня всё ломается и код не работает корректно. Я не получаю верный список истории. Или я что-то не то делаю.
         // мне кажется мапа здесь нужна потому что она хранит всю историю просмотров, разве нет?
         Node<Task> node = firstElement;
-        int i = 0;
         while (node != null) {
             taskHistory.add(node.data);
             node = node.nextElement;
