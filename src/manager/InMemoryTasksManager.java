@@ -13,9 +13,8 @@ public class InMemoryTasksManager implements TaskManager {
     private final HashMap<Long, Epic> epics;
     private final HashMap<Long, Task> tasks;
     private final HashMap<Long, SubTask> subtasks;
-    TaskID taskId;
     private final InMemoryHistoryManager historyManager;
-
+    TaskID taskId;
 
 
     public InMemoryTasksManager() {
@@ -38,7 +37,6 @@ public class InMemoryTasksManager implements TaskManager {
             System.out.println("Эпика с таким Id нет");
             return null;
         }
-
         for (SubTask subTask : epics.get(epicId).getSubtasks()) {
             historyManager.add(subTask);
         }
@@ -204,7 +202,7 @@ public class InMemoryTasksManager implements TaskManager {
         if (epics.containsKey(id)) {
             Epic epic = epics.get(id);
             for (SubTask subTask : epic.getSubtasks()) {
-                subtasks.remove(subTask);
+                subtasks.remove(subTask.getId());
                 historyManager.remove(subTask.getId());
             }
             epics.remove(id);
@@ -237,14 +235,14 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public Task createTask(String nameTask, String description, Status status) {
         long id = taskId.getId();
-        return new Task(id, nameTask, description,  status);
+        return new Task(id, nameTask, description, status);
     }
 
     //создание подзадачи
     @Override
     public SubTask createSubTask(long epicId, String nameTask, String description, Status status) {
         long id = taskId.getId();
-        return new SubTask(epicId, id, nameTask, description,  status);
+        return new SubTask(epicId, id, nameTask, description, status);
     }
 
     // получение истории просмотра

@@ -9,27 +9,27 @@ public class Main {
     public static void main(String[] args) {
         // проверка методов
         TaskManager tasksManager = Managers.getDefault();
-        //InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
 
         Epic epic = tasksManager.createEpic("Эпик 1", "описание эпика 1");
         tasksManager.addTask(epic); // добавили эпик 1
 
+
         System.out.println("проверяем что эпик добавился");
-        //System.out.println(tasksManager.getEpics());
+        System.out.println(tasksManager.getEpics());
         long epicId = 1;
 
         SubTask subTask = tasksManager.createSubTask(epicId, "подзадача 1", "описание подзадачи 1",
-                                                     Status.NEW); // добавили подзадачу в эпик 1
+                                                     Status.NEW); // добавили подзадачу 1 в эпик 1
         tasksManager.addTask(subTask);
         subTask = tasksManager.createSubTask(epicId, "подзадача 2", "описание подзадачи 2",
-                                             Status.NEW); //добавили подзадачу в эпик 1
+                                             Status.NEW); //добавили подзадачу 2 в эпик 1
         tasksManager.addTask(subTask);
 
         epic = tasksManager.createEpic("Эпик 2", "описание эпика 2");
         tasksManager.addTask(epic); // добавили эпик 2
 
-        System.out.println("проверяем что подзадачи относятся к эпику 1");
-        System.out.println(tasksManager.getSubTaskByEpicId(epicId));
+        System.out.println("\nпроверяем что подзадачи относятся к эпику 1");
+        System.out.println(tasksManager.getSubTaskByEpicId(epicId)); // получаем подзадачи определённого эпика
 
         System.out.println("проверяем что добавился второй эпик");
         System.out.println(tasksManager.getEpics());
@@ -102,7 +102,7 @@ public class Main {
 
         System.out.println("\nУдаление ранее добавленных задач по ID");
 
-        tasksManager.removeById(epicId); //удалили эпик 1
+        //tasksManager.removeById(epicId); //удалили эпик 1
 
         tasksManager.getSubTaskByEpicId(
                 epicId); // проверка, что эпика с epicId нет, должен быть выведен ответ: Эпика с таким Id нет
@@ -121,6 +121,33 @@ public class Main {
         System.out.println("\nПросмотр истории");
         System.out.println(tasksManager.history());
 
+        System.out.println("\n---------------------");
+        System.out.println(tasksManager.getSubTaskByEpicId(4L));
+
+        System.out.println("\n---------------------");
+
+        epic = tasksManager.createEpic("Эпик 1", "описание эпика 1");
+        tasksManager.addTask(epic); // добавили эпик 1
+        System.out.println(tasksManager.getEpics());
+
+        subTask = tasksManager.createSubTask(9L, "подзадача 1", "описание подзадачи 1",
+                                             Status.NEW); // добавили подзадачу 1 в эпик 1
+        tasksManager.addTask(subTask);
+
+        subTask = tasksManager.createSubTask(9L, "подзадача 2", "описание подзадачи 2",
+                                             Status.NEW); //добавили подзадачу 2 в эпик 1
+        tasksManager.addTask(subTask);
+
+        subTask = tasksManager.createSubTask(9L, "подзадача 3", "описание подзадачи 3",
+                                             Status.NEW); //добавили подзадачу 2 в эпик 1
+        tasksManager.addTask(subTask);
+
+        System.out.println("\nпроверяем что подзадачи относятся к эпику 1");
+        System.out.println(tasksManager.getSubTaskByEpicId(9L)); // получаем подзадачи определённого эпика
+
+
+        System.out.println("\nПросмотр истории");
+        System.out.println(tasksManager.history());
 
     }
 
