@@ -8,7 +8,7 @@ import task.Task;
 public class Main {
     public static void main(String[] args) {
         // проверка методов
-        TaskManager tasksManager = Managers.getDefault("recourсes/recources.csv");
+        TaskManager tasksManager = Managers.getDefault("recources/recources");
 
 
        // создаём задачи. Заполняем файл csv одновременно
