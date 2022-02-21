@@ -12,14 +12,14 @@ public interface TaskManager {
     // 2.3 Получение списка всех подзадач определённого эпика.
     List<SubTask> getSubTaskByEpicId(Long id);
 
-    // 2.1 — Получение списка всех задач
-    List<Epic> getEpics();
-
     // 2.1 — Получение списка всех эпиков
-    List<Task> getTasks();
+    List<Epic> getEpicsList();
+
+    // 2.1 — Получение списка всех задач
+    List<Task> getTasksList();
 
     // 2.1 — Получение списка всех подзадач
-    List<SubTask> getSubTasks();
+    List<SubTask> getSubTasksList();
 
     // 2.4 Получение задачи любого типа по идентификатору.
     Task getTaskById(Long id);

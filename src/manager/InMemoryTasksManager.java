@@ -1,5 +1,6 @@
 package manager;
 
+import history.HistoryManager;
 import history.InMemoryHistoryManager;
 import task.*;
 
@@ -10,10 +11,10 @@ import java.util.List;
 //управляет задачами
 public class InMemoryTasksManager implements TaskManager {
 
-    private final HashMap<Long, Epic> epics;
-    private final HashMap<Long, Task> tasks;
-    private final HashMap<Long, SubTask> subtasks;
-    private final InMemoryHistoryManager historyManager;
+    private static HashMap<Long, Epic> epics;
+    private static HashMap<Long, Task> tasks;
+    private static HashMap<Long, SubTask> subtasks;
+    protected final HistoryManager historyManager;
     TaskID taskId;
 
 
@@ -39,29 +40,53 @@ public class InMemoryTasksManager implements TaskManager {
         }
         for (SubTask subTask : epics.get(epicId).getSubtasks()) {
             historyManager.add(subTask);
+            FileBackedTasksManager.history = FileBackedTasksManager.toString(historyManager);
         }
         return epics.get(epicId).getSubtasks();
     }
 
+
+
+    protected static void setTasks(Long id, Task task) {
+        tasks.put(id, task);
+    }
+
+    protected static void setEpics(Long id, Epic epic) {
+        epics.put(id, epic);
+    }
+
+    protected static void setSubtasks(Long id, SubTask subTask) {
+        subtasks.put(id, subTask);
+    }
+
+    protected static HashMap<Long, Epic> getEpics() {
+        return epics;
+    }
+
+    protected static HashMap<Long, Task> getTasks() {
+        return tasks;
+    }
+
+    protected static HashMap<Long, SubTask> getSubtasks() {
+        return subtasks;
+    }
+
     // 2.1 — Получение списка всех эпиков
     @Override
-    public List<Epic> getEpics() {
-        List<Epic> tasksName = new ArrayList<>();
-        tasksName.addAll(epics.values());
-        return tasksName;
+    public List<Epic> getEpicsList() {
+        return new ArrayList<>(epics.values());
     }
 
     // 2.1 — Получение списка всех задач
     @Override
-    public List<Task> getTasks() {
-        List<Task> epicsName = new ArrayList<>();
-        epicsName.addAll(tasks.values());
-        return epicsName;
+    public List<Task> getTasksList() {
+        return new ArrayList<>(tasks.values());
+
     }
 
     // 2.1 — Получение списка всех подзадач
     @Override
-    public List<SubTask> getSubTasks() {
+    public List<SubTask> getSubTasksList() {
         return new ArrayList<>(subtasks.values());
     }
 
@@ -74,12 +99,15 @@ public class InMemoryTasksManager implements TaskManager {
         }
         if (epics.containsKey(id)) {
             historyManager.add(epics.get(id));
+            FileBackedTasksManager.history = FileBackedTasksManager.toString(historyManager);
             return epics.get(id);
         } else if (tasks.containsKey(id)) {
             historyManager.add(tasks.get(id));
+            FileBackedTasksManager.history = FileBackedTasksManager.toString(historyManager);
             return tasks.get(id);
         } else if (subtasks.containsKey(id)) {
             historyManager.add(subtasks.get(id));
+            FileBackedTasksManager.history = FileBackedTasksManager.toString(historyManager);
             return subtasks.get(id);
         } else {
             System.out.println("Нет задач с таким ID");
@@ -107,6 +135,12 @@ public class InMemoryTasksManager implements TaskManager {
         if (!epics.containsKey(epicId)) {
             System.out.println("Эпика с таким ID нет");
             return;
+        }
+        for (SubTask sabTask : subtasks. values()) {
+            if (newSubTask.equals(sabTask)) {
+                System.out.printf("Такая подзадача в эпике %s уже есть\n", newSubTask.getEpicId());
+                return;
+            }
         }
         epics.get(epicId).getSubtasks().add(newSubTask);
         subtasks.put(newSubTask.getId(), newSubTask);
@@ -204,15 +238,19 @@ public class InMemoryTasksManager implements TaskManager {
             for (SubTask subTask : epic.getSubtasks()) {
                 subtasks.remove(subTask.getId());
                 historyManager.remove(subTask.getId());
+                FileBackedTasksManager.history = FileBackedTasksManager.toString(historyManager);
             }
             epics.remove(id);
             historyManager.remove(id);
+            FileBackedTasksManager.history = FileBackedTasksManager.toString(historyManager);
         } else if (tasks.containsKey(id)) {
             tasks.remove(id);
             historyManager.remove(id);
+            FileBackedTasksManager.history = FileBackedTasksManager.toString(historyManager);
         } else if (subtasks.containsKey(id)) {
             subtasks.remove(id);
             historyManager.remove(id);
+            FileBackedTasksManager.history = FileBackedTasksManager.toString(historyManager);
         } else {
             System.out.println("Задач с таким id нет");
         }
@@ -221,6 +259,7 @@ public class InMemoryTasksManager implements TaskManager {
     //создание эпика
     @Override
     public Epic createEpic(String nameEpic, String description) {
+        taskId.setId(getLastId());
         Long id = taskId.getId();
         List<SubTask> subTasksForEpic = new ArrayList<>();
         for (SubTask subTask : subtasks.values()) {
@@ -234,6 +273,7 @@ public class InMemoryTasksManager implements TaskManager {
     //создание задачи
     @Override
     public Task createTask(String nameTask, String description, Status status) {
+        taskId.setId(getLastId());
         long id = taskId.getId();
         return new Task(id, nameTask, description, status);
     }
@@ -241,6 +281,7 @@ public class InMemoryTasksManager implements TaskManager {
     //создание подзадачи
     @Override
     public SubTask createSubTask(long epicId, String nameTask, String description, Status status) {
+        taskId.setId(getLastId());
         long id = taskId.getId();
         return new SubTask(epicId, id, nameTask, description, status);
     }
@@ -249,6 +290,27 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public List<Task> history() {
         return historyManager.getHistoryList();
+    }
+
+    private long getLastId(){
+        long lastId = 0;
+        for (Long id : epics.keySet()) {
+            if (lastId < id) {
+                lastId = id;
+            }
+        }
+        for (Long id : tasks.keySet()) {
+            if (lastId < id) {
+                lastId = id;
+            }
+        }
+        for (Long id : subtasks.keySet()) {
+            if (lastId < id) {
+                lastId = id;
+            }
+        }
+        return lastId;
+
     }
 
 }

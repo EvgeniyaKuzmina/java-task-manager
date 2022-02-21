@@ -12,6 +12,9 @@ public class TaskID {
     public  long getId() {
         return ++id;
     }
+    public void setId(Long lastId) {
+        id = lastId;
+    }
 
     @Override
     public String toString() {

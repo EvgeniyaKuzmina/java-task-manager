@@ -4,9 +4,9 @@ import java.util.Objects;
 
 public class Task {
 
+    protected final Long id;
     protected String name;
     protected String description;
-    protected final Long id;
     protected Status status;
 
     public Task(Long id, String name, String description, Status status) {
@@ -44,6 +44,16 @@ public class Task {
         this.status = status;
     }
 
+    public static Task fromString(String value) {
+        String[] splitedLine = value.split(",");
+        Long id = Long.parseLong(splitedLine[0]);
+        String name = splitedLine[2];
+        String description = splitedLine[4];
+        String status = splitedLine[3];
+        return new Task(id,name,description, Status.toStatus(status));
+
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -51,8 +61,7 @@ public class Task {
         if (!(o instanceof Task)) return false;
         Task task = (Task) o;
         return Objects.equals(name, task.name) &&
-                Objects.equals(description, task.description) &&
-                Objects.equals(id, task.id) && Objects.equals(status,task.status);
+                Objects.equals(description, task.description);
     }
 
     @Override
@@ -62,10 +71,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{id=" + id +
-                ", name=" + name +
-                ", description=" + description +
-                ", status=" + status +
-                "}\n";
+        return String.format("%d,%s,%s,%s,%s\n", id, TasksType.TASK, name, status, description);
+
     }
 }

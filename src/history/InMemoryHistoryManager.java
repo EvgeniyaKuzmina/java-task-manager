@@ -17,12 +17,13 @@ public class InMemoryHistoryManager implements HistoryManager {
         tasksMapHistory = new HashMap<>();
     }
 
+    public HashMap<Long, Node<Task>> getTasksMapHistory() {
+        return tasksMapHistory;
+    }
+
     // добавляет задачу в конец списка просмотров, удаляет ранее просмотренную такую же задачу
     @Override
-    public void add(Task task) { //После того как подробнее разобралась во всех вопросах, решила изначально сама изменить этот метод.
-        // Опираясь на свои личные мысли и рассуждения так сказать, и пока не смотреть на ваше предложение, как его изменить
-        //Потом проверила и оказалось что я его переделала так, как вы и предложили. :)
-        //Собой довольно, а вам ещё раз спасибо, вы очень помогли.
+    public void add(Task task) {
         Long id = task.getId();
         Node<Task> nodeTask;
         if (tasksMapHistory.containsKey(id)) {
@@ -42,6 +43,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     // удаляет сразу всю историю, если все задачи, эпики и подзадачи были удалены
+    @Override
     public void removeAll() {
         removeAllNodes();
         tasksMapHistory.clear();
@@ -49,13 +51,8 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     // возвращает список просмотренных задач
     @Override
-    public List<Task> getHistoryList() { // доработала метод, в нём была неточность.
-        // Когда я просматривала задачи по id и после этого просматривала историю просмотров, у меня в истории выводились не все задачи, а все кроме последней.
-        // Это было потому, что цикл while выполняется до тех пор, пока nextElement у ноды не равен null:(node.nextElement != null)
-        // Соответственно, если nextElement равен null то цикл прекращает выполнение и уже данные по текущей ноде (у которой nextElement == null) не добавляются в список:
-        // taskHistory.add(node.data); — не выполняется
-        // поэтому немного дописала реализацию метода, чтобы в историю добавлялись точно все просмотры.
-        if (firstElement == null) { // добавила проверку, чтобы избежать исключения nullpointerexception, в случае если, например, мы удалили все таски, и соответственно все ноды тоже.
+    public List<Task> getHistoryList() {
+        if (firstElement == null) {
             return new ArrayList<>();
         }
         List<Task> taskHistory = new ArrayList<>();
@@ -83,8 +80,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     // удаляет узел
-    private void removeNode(Node<Task> node) { //Спасибо вам огромное за такие большие и подробные комментарии, я разобралась что вы имели в виду и да, теперь всё встало на свои места.
-        // До этого у меня было не совсем чёткое и ясное представление о том, что я делю. Сейчас я понимаю что уже гораздо лучше разбираюсь в том что здесь происходит. :)
+    private void removeNode(Node<Task> node) {
         if (node.previousElement != null) {
             node.previousElement.nextElement = node.nextElement;
         } else {

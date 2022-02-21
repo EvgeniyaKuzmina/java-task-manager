@@ -14,6 +14,16 @@ public class Epic extends Task {
 
     }
 
+    public static Epic fromString(String value, List<SubTask> subtasks) {
+        String[] splitedLine = value.split(",");
+        Long id = Long.parseLong(splitedLine[0]);
+        String name = splitedLine[2];
+        String description = splitedLine[4];
+        String status = splitedLine[3];
+        return new Epic(id, name, description, subtasks, Status.toStatus(status));
+
+    }
+
     public List<SubTask> getSubtasks() {
         return subtasks;
     }
@@ -25,11 +35,12 @@ public class Epic extends Task {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if(o == null) return false;
+        if (o == null) return false;
         if (!(o instanceof Epic)) return false;
         if (!super.equals(o)) return false;
         Epic epic = (Epic) o;
-        return Objects.equals(subtasks,epic.subtasks);
+        return  Objects.equals(name, epic.name) &&
+                Objects.equals(description, epic.description);
     }
 
     @Override
@@ -39,12 +50,7 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
-        return "Epic{id=" + id +
-                ", name=" + name +
-                ", description=" + description +
-                ", subtasks=" + subtasks +
-                ", status=" + status +
-                "}\n";
+        return String.format("%d,%s,%s,%s,%s\n", id, TasksType.EPIC, name, status, description);
     }
 
 
