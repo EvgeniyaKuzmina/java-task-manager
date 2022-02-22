@@ -1,3 +1,4 @@
+import manager.FileBackedTasksManager;
 import manager.Managers;
 import manager.TaskManager;
 import task.Epic;
@@ -5,11 +6,13 @@ import task.Status;
 import task.SubTask;
 import task.Task;
 
+import java.nio.file.Paths;
+
 public class Main {
     public static void main(String[] args) {
         // проверка методов
-        TaskManager tasksManager = Managers.getDefault("recources/recources");
 
+        TaskManager tasksManager  = FileBackedTasksManager.loadFromFile(Paths.get("recources/recources"));
 
        // создаём задачи. Заполняем файл csv одновременно
         // 1. файл csv пустой, добавляем задачи
@@ -36,19 +39,30 @@ public class Main {
         subTask = tasksManager.createSubTask(4L, "подзадача 3", "описание подзадачи 3",Status.NEW);
         tasksManager.addTask(subTask); // добавили подзадачу
 
+        System.out.println(tasksManager.getTasksList());
+
+
 
 
 
         // задачи есть в файл csv, проверяем как они восстанавливаются из файла в системе
-       // 2. закомментировать код с 16 по 37 строку, раскомментировать код ниже с 44 по 51 строку
-        /*
-        tasksManager.getTaskById(1L); // получаем задачи из восстановленных файлов, история просмотров должна загрузиться в файл csv
+       // 2. закомментировать код с 19 по 42 строку, раскомментировать код ниже с 51 по 63 строку
+
+       /*
+       tasksManager.getTaskById(1L); // получаем задачи из восстановленных файлов, история просмотров должна загрузиться в файл csv
         tasksManager.getTaskById(4L);
         tasksManager.getTaskById(5L);
 
         //удаляем эпик, и проверяем что данные в csv сохранены корректно
+
+        tasksManager.getTaskById(3L);
+        tasksManager.removeById(3L);
         tasksManager.removeById(4L);
+        Task task = tasksManager.createTask("Задача 526", "описание задачи", Status.IN_PROGRESS);
+        tasksManager.addTask(task); // добавили задачу которая уже есть, она не должна добавить в систему
         */
+
+
 
 
         System.out.println(tasksManager.history());

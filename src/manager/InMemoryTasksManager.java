@@ -14,8 +14,8 @@ public class InMemoryTasksManager implements TaskManager {
     private static HashMap<Long, Epic> epics;
     private static HashMap<Long, Task> tasks;
     private static HashMap<Long, SubTask> subtasks;
-    protected final HistoryManager historyManager;
-    TaskID taskId;
+    protected static HistoryManager historyManager;
+    private TaskID taskId;
 
 
     public InMemoryTasksManager() {
@@ -40,7 +40,6 @@ public class InMemoryTasksManager implements TaskManager {
         }
         for (SubTask subTask : epics.get(epicId).getSubtasks()) {
             historyManager.add(subTask);
-            FileBackedTasksManager.history = FileBackedTasksManager.toString(historyManager);
         }
         return epics.get(epicId).getSubtasks();
     }
@@ -81,7 +80,6 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public List<Task> getTasksList() {
         return new ArrayList<>(tasks.values());
-
     }
 
     // 2.1 — Получение списка всех подзадач
@@ -99,15 +97,12 @@ public class InMemoryTasksManager implements TaskManager {
         }
         if (epics.containsKey(id)) {
             historyManager.add(epics.get(id));
-            FileBackedTasksManager.history = FileBackedTasksManager.toString(historyManager);
             return epics.get(id);
         } else if (tasks.containsKey(id)) {
             historyManager.add(tasks.get(id));
-            FileBackedTasksManager.history = FileBackedTasksManager.toString(historyManager);
             return tasks.get(id);
         } else if (subtasks.containsKey(id)) {
             historyManager.add(subtasks.get(id));
-            FileBackedTasksManager.history = FileBackedTasksManager.toString(historyManager);
             return subtasks.get(id);
         } else {
             System.out.println("Нет задач с таким ID");
@@ -238,19 +233,15 @@ public class InMemoryTasksManager implements TaskManager {
             for (SubTask subTask : epic.getSubtasks()) {
                 subtasks.remove(subTask.getId());
                 historyManager.remove(subTask.getId());
-                FileBackedTasksManager.history = FileBackedTasksManager.toString(historyManager);
             }
             epics.remove(id);
             historyManager.remove(id);
-            FileBackedTasksManager.history = FileBackedTasksManager.toString(historyManager);
         } else if (tasks.containsKey(id)) {
             tasks.remove(id);
             historyManager.remove(id);
-            FileBackedTasksManager.history = FileBackedTasksManager.toString(historyManager);
         } else if (subtasks.containsKey(id)) {
             subtasks.remove(id);
             historyManager.remove(id);
-            FileBackedTasksManager.history = FileBackedTasksManager.toString(historyManager);
         } else {
             System.out.println("Задач с таким id нет");
         }

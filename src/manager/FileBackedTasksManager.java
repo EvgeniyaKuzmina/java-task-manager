@@ -11,23 +11,20 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class FileBackedTasksManager extends InMemoryTasksManager {
-    static String history;
-    static List<Long> idTasks;
-    String filePath;
+    private final String filePath;
 
     public FileBackedTasksManager(String filePath) {
         this.filePath = filePath;
-        loadFromFile(Paths.get(filePath));
+        new InMemoryTasksManager();
     }
 
     // получает список id просмотренных задач из строки
-    static List<Long> fromString(String value) {
+    private static List<Long> fromString(String value) {
         List<Long> id = new ArrayList<>();
         String[] idList = value.split(",");
         for (String next : idList) {
@@ -37,7 +34,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
 
     // из менеджера истории получает историю просмотров и сохраняет id просмотренных задач в строку
-    static String toString(HistoryManager manager) {
+    private static String toString(HistoryManager manager) {
         StringBuilder result =  new StringBuilder();
         List<Task> historyList = manager.getHistoryList();
         if (!historyList.isEmpty()) {
@@ -48,65 +45,74 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         return result.toString();
     }
 
-    // загружает в систему все задачи/эпики/подзадачи и историю просмотров
-    public void loadFromFile(Path file) {
+
+    //пока проходила проверка моего первого кода, в наше ТЗ добавили изменения и указали, что метод loadFromFile
+    // должен возвращать объект FileBackedTasksManager. Метод немного изменила.
+    // Получается что класс Managers с методом getDefault уже не нужен? Раз этот метод при вызове и создаёт объект класса.
+    // загружает в систему все задачи/эпики/подзадачи и историю просмотров и создаёт объект TaskManager
+    public static FileBackedTasksManager loadFromFile(Path file) {
+        FileBackedTasksManager fileBackTM = new FileBackedTasksManager(file.toString());
         try {
             String[] tasksLine = Files.readString(file, StandardCharsets.UTF_8).split("\n");
             if (tasksLine.length <= 1) {
-                return;
+                return fileBackTM;
             }
-            for (String nextLine : tasksLine) { // через цикл восстанавливаем все задачи, таски и подзадачи из файла csv
-                String[] words = nextLine.split(",");
-                if (nextLine.isBlank()) { // прекращаем цикл, если дошли до пустой строки, которая отделяет все задачи от истории просмотра
+            for (int i = 1; i< tasksLine.length; i++) { // через цикл восстанавливаем все задачи, таски и подзадачи из файла csv,
+                // начинаем числ с 1, а не с 0, чтобы не учитывать шапку таблицы id,type,name,status,description,epic
+                String[] words = tasksLine[i].split(",");
+                if (tasksLine[i].isBlank()) { // прекращаем цикл, если дошли до пустой строки, которая отделяет все задачи от истории просмотра
                     break;
                 }
-                String taskType = words[1];
+                TasksType taskType = TasksType.valueOf(words[1]);
                 String id = words[0];
-                if (taskType.equals(TasksType.TASK.getTaskType())) { // проверяем, если в csv строка хранит TASK,
-                                                                    // сохраняем задачу в соответствующую хешмапу
-                    Task task = Task.fromString(nextLine);
-                    setTasks(task.getId(), task);
-                } else if (taskType.equals(TasksType.EPIC.getTaskType())) { // проверяем, если в csv строка хранит EPIC,
-                                                                            // сохраняем задачу в соответствующую хешмапу
-                    List<SubTask> subtasks = new ArrayList<>();
-                    for (String nextSubTask : tasksLine) {
-                        if (nextSubTask.isBlank()) { // прекращаем цикл, если дошли до пустой строки,
-                                                     // которая отделяет все задачи от истории просмотра
-                            break;
+                switch (taskType) {
+                    case TASK: // проверяем, если в csv строка хранит TASK, сохраняем задачу в соответствующую хешмапу
+                        Task task = Task.fromString(tasksLine[i]);
+                        setTasks(task.getId(), task);
+                        break;
+                    case EPIC: // проверяем, если в csv строка хранит EPIC, сохраняем задачу в соответствующую хешмапу
+                        List<SubTask> subtasks = new ArrayList<>();
+                        for (String nextSubTask : tasksLine) {
+                            if (nextSubTask.isBlank()) { // прекращаем цикл, если дошли до пустой строки,
+                                // которая отделяет все задачи от истории просмотра
+                                break;
+                            }
+                            String subTaskType = nextSubTask.split(",")[1];
+                            if (subTaskType.equals(TasksType.SUBTASK.getTaskType()) && id.equals(
+                                    nextSubTask.split(",")[5])) { // проверяем, если в csv строка хранит SUBTASK и
+                                // epicID равен id текущего эпика,
+                                SubTask subtask = SubTask.fromString(nextSubTask);
+                                subtasks.add(subtask);
+                            }
                         }
-                        String subTaskType = nextSubTask.split(",")[1];
-                        if (subTaskType.equals(TasksType.SUBTASK.getTaskType()) && id.equals(
-                                nextSubTask.split(",")[5])) { // проверяем, если в csv строка хранит SUBTASK и
-                                                                            // epicID равен id текущего эпика,
-                            SubTask subtask = SubTask.fromString(nextSubTask);
-                            subtasks.add(subtask);
-                        }
-                    }
-                    Epic epic = Epic.fromString(nextLine, subtasks);
-                    setEpics(epic.getId(), epic);
-                } else if (taskType.equals(TasksType.SUBTASK.getTaskType())) { // проверяем, если в csv строка хранит
-                                                                // SUBTASK, сохраняем задачу в соответствующую хешмапу
-                    SubTask subtask = SubTask.fromString(nextLine);
-                    setSubtasks(subtask.getId(), subtask);
+                        Epic epic = Epic.fromString(tasksLine[i], subtasks);
+                        setEpics(epic.getId(), epic);
+                        break;
+                    case SUBTASK: // проверяем, если в csv строка хранит SUBTASK, сохраняем задачу в соответствующую хешмапу
+                        SubTask subtask = SubTask.fromString(tasksLine[i]);
+                        setSubtasks(subtask.getId(), subtask);
+                        break;
                 }
             }
             if (tasksLine[tasksLine.length - 2].isBlank()) { // проверяем что предпоследняя строка — это пустая строка,
                                                             // которая отделяет все задачи от истории просмотра
-                idTasks = fromString(tasksLine[tasksLine.length - 1]); // получаем список id задач из
-                                                                         // сохранённой истории csv
+                List<Long> idTasks = fromString(tasksLine[tasksLine.length - 1]); // получаем список id задач из
+                // сохранённой истории csv
                 for (Long id : idTasks) {
                     loadHistory(id); // восстанавливаем историю просмотров
                 }
             }
+
         } catch (IOException e) {
             System.out.printf(
                     "Невозможно прочитать файл с отчётом. Возможно, файл не находится в нужной директории или путь к файлу указан с ошибкой: %s\n",
                     file.getFileName());
         }
+        return fileBackTM;
     }
 
     // сохраняет все задачи, такси и подзадачи и историю просмотров в файл csv
-    private void save() throws ManagerSaveException { // по ТЗ просят что метод save должен выбрасывать исключение ManagerSaveException, но я не очень понимаю смысл этого исключения
+    private void save() {
         String line;
         String firstLine = "id,type,name,status,description,epic\n";
         try (Writer fileWriter = new FileWriter(filePath, StandardCharsets.UTF_8)) {
@@ -124,10 +130,9 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                 fileWriter.write(line);
             }
             fileWriter.write("\n");
-            if (history != null) {
-                fileWriter.write(history);
+            if (historyManager.getHistoryList() != null) {
+                fileWriter.write(toString(historyManager));
             }
-
         } catch (FileNotFoundException e) {
             System.out.println(
                     "В указанной директории файла нет или процесс не может получить доступ к файлу, так как этот файл занят другим процессом");
@@ -135,6 +140,19 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
             e.printStackTrace();
         }
         throw new ManagerSaveException("Ошибка в сохранении файла");
+    }
+
+    // восстанавливает историю просмотра по id
+    private static void loadHistory(Long id) {
+        if (getTasks().containsKey(id)) {
+            historyManager.add(getTasks().get(id));
+        }
+        if (getEpics().containsKey(id)) {
+            historyManager.add(getEpics().get(id));
+        }
+        if (getSubtasks().containsKey(id)) {
+            historyManager.add(getSubtasks().get(id));
+        }
     }
 
     //2.5 Добавление новой задачи, эпика, подзадачи. Сохранение задачи в файл.
@@ -145,19 +163,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
             save();
         } catch (ManagerSaveException e) {
             e.getMessage();
-        }
-    }
-
-    // восстанавливает историю просмотра по id
-    private void loadHistory(Long id) {
-        if (getTasks().containsKey(id)) {
-            historyManager.add(getTasks().get(id));
-        }
-        if (getEpics().containsKey(id)) {
-            historyManager.add(getEpics().get(id));
-        }
-        if (getSubtasks().containsKey(id)) {
-            historyManager.add(getSubtasks().get(id));
         }
     }
 
@@ -234,6 +239,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         } catch (ManagerSaveException e) {
             e.getMessage();
         }
+
     }
 
     //создание эпика
