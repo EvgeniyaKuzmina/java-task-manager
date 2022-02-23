@@ -34,7 +34,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     // из менеджера истории получает историю просмотров и сохраняет id просмотренных задач в строку
     private static String toString(HistoryManager manager) {
-        StringBuilder result =  new StringBuilder();
+        StringBuilder result = new StringBuilder();
         List<Task> historyList = manager.getHistoryList();
         if (!historyList.isEmpty()) {
             for (Task task : historyList) {
@@ -44,10 +44,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         return result.toString();
     }
 
-
-    //пока проходила проверка моего первого кода, в наше ТЗ добавили изменения и указали, что метод loadFromFile
-    // должен возвращать объект FileBackedTasksManager. Метод немного изменила.
-    // Получается что класс Managers с методом getDefault уже не нужен? Раз этот метод при вызове и создаёт объект класса.
     // загружает в систему все задачи/эпики/подзадачи и историю просмотров и создаёт объект TaskManager
     public static FileBackedTasksManager loadFromFile(Path file) {
         FileBackedTasksManager fileBackTM = new FileBackedTasksManager(file.toString());
@@ -56,7 +52,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
             if (tasksLine.length <= 1) {
                 return fileBackTM;
             }
-            for (int i = 1; i< tasksLine.length; i++) { // через цикл восстанавливаем все задачи, таски и подзадачи из файла csv,
+            for (int i = 1; i < tasksLine.length; i++) { // через цикл восстанавливаем все задачи, таски и подзадачи из файла csv,
                 // начинаем числ с 1, а не с 0, чтобы не учитывать шапку таблицы id,type,name,status,description,epic
                 String[] words = tasksLine[i].split(",");
                 if (tasksLine[i].isBlank()) { // прекращаем цикл, если дошли до пустой строки, которая отделяет все задачи от истории просмотра
@@ -94,20 +90,30 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                 }
             }
             if (tasksLine[tasksLine.length - 2].isBlank()) { // проверяем что предпоследняя строка — это пустая строка,
-                                                            // которая отделяет все задачи от истории просмотра
+                // которая отделяет все задачи от истории просмотра
                 List<Long> idTasks = fromString(tasksLine[tasksLine.length - 1]); // получаем список id задач из
                 // сохранённой истории csv
                 for (Long id : idTasks) {
                     loadHistory(id); // восстанавливаем историю просмотров
                 }
             }
-
         } catch (IOException e) {
-            System.out.printf(
-                    "Невозможно прочитать файл с отчётом. Возможно, файл не находится в нужной директории или путь к файлу указан с ошибкой: %s\n",
-                    file.getFileName());
+            throw new ManagerSaveException("Ошибка в чтении файла " + file);
         }
         return fileBackTM;
+    }
+
+    // восстанавливает историю просмотра по id
+    private static void loadHistory(Long id) {
+        if (getTasks().containsKey(id)) {
+            historyManager.add(getTasks().get(id));
+        }
+        if (getEpics().containsKey(id)) {
+            historyManager.add(getEpics().get(id));
+        }
+        if (getSubtasks().containsKey(id)) {
+            historyManager.add(getSubtasks().get(id));
+        }
     }
 
     // сохраняет все задачи, такси и подзадачи и историю просмотров в файл csv
@@ -133,24 +139,10 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                 fileWriter.write(toString(historyManager));
             }
         } catch (FileNotFoundException e) {
-            System.out.println(
-                    "В указанной директории файла нет или процесс не может получить доступ к файлу, так как этот файл занят другим процессом");
+            throw new ManagerSaveException("В указанной директории файла нет или процесс не может получить доступ к файлу, " +
+                            "так как этот файл занят другим процессом");
         } catch (IOException e) {
-            e.printStackTrace();
-        }
-        throw new ManagerSaveException("Ошибка в сохранении файла");
-    }
-
-    // восстанавливает историю просмотра по id
-    private static void loadHistory(Long id) {
-        if (getTasks().containsKey(id)) {
-            historyManager.add(getTasks().get(id));
-        }
-        if (getEpics().containsKey(id)) {
-            historyManager.add(getEpics().get(id));
-        }
-        if (getSubtasks().containsKey(id)) {
-            historyManager.add(getSubtasks().get(id));
+            throw new ManagerSaveException("Ошибка в сохранении файла по указанному пути" + filePath);
         }
     }
 
@@ -158,22 +150,14 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     @Override
     public void addTask(Task task) {
         super.addTask(task);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.getMessage();
-        }
+        save();
     }
 
     // 2.3 Получение списка всех подзадач определённого эпика.
     @Override
     public List<SubTask> getSubTaskByEpicId(Long id) {
         List<SubTask> subTasks = super.getSubTaskByEpicId(id);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.getMessage();
-        }
+        save();
         return subTasks;
     }
 
@@ -199,11 +183,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     @Override
     public Task getTaskById(Long id) {
         Task task = super.getTaskById(id);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.getMessage();
-        }
+        save();
         return task;
     }
 
@@ -211,33 +191,21 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     @Override
     public void updateAnyTask(Task task) {
         super.updateAnyTask(task);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.getMessage();
-        }
+        save();
     }
 
     // Удаление всех ранее добавленных задач
     @Override
     public void removeAllTask() {
         super.removeAllTask();
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.getMessage();
-        }
+        save();
     }
 
     // Удаление ранее добавленных задач по ID
     @Override
     public void removeById(Long id) {
         super.removeById(id);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            e.getMessage();
-        }
+        save();
 
     }
 

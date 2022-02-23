@@ -1,5 +1,7 @@
 package manager;
 
+import exceptions.ManagerSaveException;
+
 import java.nio.file.Paths;
 
 public class Managers {
@@ -8,11 +10,22 @@ public class Managers {
         return new InMemoryTasksManager();
     }
 
-    // не совсем понимаю зачем нам дугой метод? И что значит Open/Closed Principle?
-    // сделала вот так, как второй вариант того, что метод loadFromFile() теперь у нас возвращает объект FileBackedTasksManager
-    //Тогда в методе main можно вызывать так же метод getDefault() с параметром. Вместо того чтобы в main вызывать сам метод loadFromFile()
-    public static TaskManager getDefault(String filePath) {
-        return FileBackedTasksManager.loadFromFile(Paths.get(filePath));
+    // мне кажется метод getDefault() уже не нужен. Или у меня что-то работает неправильно.
+    // Потому что если я вызываю метод getDefault(), создаётся объект класса InMemoryTasksManager(), и в классе main,
+    // если я использую объект класса InMemoryTasksManager() никакие сохранения в файле csv не происходят.
+    // Что логично, потому что я вызываю именно методы InMemoryTasksManager, а не FileBackedTasksManager.
+    // Может быть смысл станет мне понятен позднее, когда добавится ещё новый функционал в приложение.
+    // Пока сложно мне понять, смысл того, что метод больше нужен для тестирования.))
+    // Пока я вижу смысл создавать сразу объект через getFileBackedManager, чтобы все задачи и история сразу сохранялись в csv
+
+    public static TaskManager getFileBackedManager(String filePath) {
+        try {
+            return FileBackedTasksManager.loadFromFile(Paths.get(filePath));
+        } catch (ManagerSaveException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+
 
     }
 }
