@@ -20,7 +20,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     public FileBackedTasksManager(String filePath) {
         this.filePath = filePath;
-        new InMemoryTasksManager();
     }
 
     // получает список id просмотренных задач из строки
