@@ -53,5 +53,4 @@ public class Epic extends Task {
         return String.format("%d,%s,%s,%s,%s\n", id, TasksType.EPIC, name, status, description);
     }
 
-
 }

@@ -2,6 +2,7 @@ package manager;
 
 import history.HistoryManager;
 import history.InMemoryHistoryManager;
+import org.junit.jupiter.api.function.Executable;
 import task.*;
 
 import java.util.ArrayList;
@@ -27,6 +28,33 @@ public class InMemoryTasksManager implements TaskManager {
 
     }
 
+
+
+
+    public static void setTasks(Long id, Task task) {
+        tasks.put(id, task);
+    }
+
+    public static void setEpics(Long id, Epic epic) {
+        epics.put(id, epic);
+    }
+
+    public static void setSubtasks(Long id, SubTask subTask) {
+        subtasks.put(id, subTask);
+    }
+
+    protected static HashMap<Long, Epic> getEpics() {
+        return epics;
+    }
+
+    protected static HashMap<Long, Task> getTasks() {
+        return tasks;
+    }
+
+    protected static HashMap<Long, SubTask> getSubtasks() {
+        return subtasks;
+    }
+
     // 2.3 Получение списка всех подзадач определённого эпика.
     @Override
     public List<SubTask> getSubTaskByEpicId(Long epicId) {
@@ -42,32 +70,6 @@ public class InMemoryTasksManager implements TaskManager {
             historyManager.add(subTask);
         }
         return epics.get(epicId).getSubtasks();
-    }
-
-
-
-    protected static void setTasks(Long id, Task task) {
-        tasks.put(id, task);
-    }
-
-    protected static void setEpics(Long id, Epic epic) {
-        epics.put(id, epic);
-    }
-
-    protected static void setSubtasks(Long id, SubTask subTask) {
-        subtasks.put(id, subTask);
-    }
-
-    protected static HashMap<Long, Epic> getEpics() {
-        return epics;
-    }
-
-    protected static HashMap<Long, Task> getTasks() {
-        return tasks;
-    }
-
-    protected static HashMap<Long, SubTask> getSubtasks() {
-        return subtasks;
     }
 
     // 2.1 — Получение списка всех эпиков
@@ -131,13 +133,14 @@ public class InMemoryTasksManager implements TaskManager {
             System.out.println("Эпика с таким ID нет");
             return;
         }
-        for (SubTask sabTask : subtasks. values()) {
+        for (SubTask sabTask : subtasks.values()) {
             if (newSubTask.equals(sabTask)) {
-                System.out.printf("Такая подзадача в эпике %s уже есть\n", newSubTask.getEpicId());
-                return;
+               System.out.printf("Такая подзадача в эпике %s уже есть\n", newSubTask.getEpicId());
+               return;
             }
         }
         epics.get(epicId).getSubtasks().add(newSubTask);
+        System.out.println(epics);
         subtasks.put(newSubTask.getId(), newSubTask);
     }
 
@@ -240,8 +243,12 @@ public class InMemoryTasksManager implements TaskManager {
             tasks.remove(id);
             historyManager.remove(id);
         } else if (subtasks.containsKey(id)) {
-            subtasks.remove(id);
             historyManager.remove(id);
+            ArrayList<Epic> epic = new ArrayList<>(epics.values());
+            for (Epic nextEpic : epic) {
+                nextEpic.getSubtasks().remove(subtasks.get(id));
+            }
+            subtasks.remove(id);
         } else {
             System.out.println("Задач с таким id нет");
         }

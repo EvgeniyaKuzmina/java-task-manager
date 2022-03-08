@@ -1,6 +1,7 @@
 package task;
 
 import java.util.List;
+import java.util.Locale;
 
 // хранит типы статусов задач
 public enum Status {
@@ -27,13 +28,13 @@ public enum Status {
                 statusNew = true;
             } else if (subtask.getStatus().equals(DONE)) {
                 statusDone = true;
-
-
             } else if (subtask.getStatus().equals(IN_PROGRESS)) {
                 statusInProgress = true;
             }
         }
         if (statusNew && (statusDone || statusInProgress)) {
+            return IN_PROGRESS;
+        } else if (!statusNew && !statusDone && statusInProgress) {
             return IN_PROGRESS;
         } else if (!statusNew && statusDone && !statusInProgress) {
             return DONE;
@@ -42,6 +43,7 @@ public enum Status {
         }
     }
     public static Status toStatus(String taskStatus) {
+        taskStatus = taskStatus.toUpperCase(Locale.ROOT);
         if (taskStatus.equals(Status.NEW.status)) {
             return Status.NEW;
         } else if (taskStatus.equals((Status.IN_PROGRESS.status))) {

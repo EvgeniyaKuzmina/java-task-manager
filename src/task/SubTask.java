@@ -40,7 +40,6 @@ public class SubTask extends Task {
         return Objects.hash(super.hashCode(), epicId);
     }
 
-
     public static SubTask fromString(String value) {
         String[] splitedLine = value.split(",");
         Long id = Long.parseLong(splitedLine[0]);
@@ -49,7 +48,6 @@ public class SubTask extends Task {
         String status = splitedLine[3];
         Long idEpic = Long.parseLong(splitedLine[5]);
         return new SubTask(idEpic, id,name,description, Status.toStatus(status));
-
     }
 
     @Override
