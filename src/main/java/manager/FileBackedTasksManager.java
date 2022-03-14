@@ -54,7 +54,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                 return fileBackTM;
             }
             for (int i = 1; i < tasksLine.length; i++) { // через цикл восстанавливаем все задачи, таски и подзадачи из файла csv,
-                // начинаем числ с 1, а не с 0, чтобы не учитывать шапку таблицы id,type,name,status,description,epic
+                // начинаем числ с 1, а не с 0, чтобы не учитывать шапку таблицы id,type,name,status,description,startTime,duration,epic
                 String[] words = tasksLine[i].split(",");
                 if (tasksLine[i].isBlank()) { // прекращаем цикл, если дошли до пустой строки, которая отделяет все задачи от истории просмотра
                     break;
@@ -75,7 +75,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                             }
                             String subTaskType = nextSubTask.split(",")[1];
                             if (subTaskType.equals(TasksType.SUBTASK.getTaskType()) && id.equals(
-                                    nextSubTask.split(",")[5])) { // проверяем, если в csv строка хранит SUBTASK и
+                                    nextSubTask.split(",")[7])) { // проверяем, если в csv строка хранит SUBTASK и
                                 // epicID равен id текущего эпика,
                                 SubTask subtask = SubTask.fromString(nextSubTask);
                                 subtasks.add(subtask);
@@ -118,9 +118,9 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
 
     // сохраняет все задачи, такси и подзадачи и историю просмотров в файл csv
-    private void save() {
+    public Executable save() {
         String line;
-        String firstLine = "id,type,name,status,description,epic\n";
+        String firstLine = "id,type,name,status,description,startTime,duration,epic\n";
         try (Writer fileWriter = new FileWriter(filePath, StandardCharsets.UTF_8)) {
             fileWriter.write(firstLine);
             for (Task task : getTasksList()) {
@@ -135,8 +135,8 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                 line = subTask.toString();
                 fileWriter.write(line);
             }
-            fileWriter.write("\n");
             if (historyManager.getHistoryList() != null) {
+                fileWriter.write("\n");
                 fileWriter.write(toString(historyManager));
             }
         } catch (FileNotFoundException e) {
@@ -145,6 +145,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка в сохранении файла по указанному пути" + filePath);
         }
+        return null;
     }
 
     //2.5 Добавление новой задачи, эпика, подзадачи. Сохранение задачи в файл.
@@ -160,24 +161,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         List<SubTask> subTasks = super.getSubTaskByEpicId(id);
         save();
         return subTasks;
-    }
-
-    // 2.1 — Получение списка всех задач
-    @Override
-    public List<Epic> getEpicsList() {
-        return super.getEpicsList();
-    }
-
-    // 2.1 — Получение списка всех эпиков
-    @Override
-    public List<Task> getTasksList() {
-        return super.getTasksList();
-    }
-
-    // 2.1 — Получение списка всех подзадач
-    @Override
-    public List<SubTask> getSubTasksList() {
-        return super.getSubTasksList();
     }
 
     // 2.4 Получение задачи любого типа по идентификатору.
@@ -204,35 +187,11 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     // Удаление ранее добавленных задач по ID
     @Override
-    public void removeById(Long id) {
-        super.removeById(id);
+    public String removeById(Long id) {
+        String result = super.removeById(id);
         save();
-
+        return result;
     }
 
-    //создание эпика
-    @Override
-    public Epic createEpic(String nameEpic, String description) {
-        return super.createEpic(nameEpic, description);
-    }
-
-    //создание эпика
-    @Override
-    public Task createTask(String nameTask, String description, Status status) {
-        return super.createTask(nameTask, description, status);
-    }
-
-    //создание эпика
-    @Override
-    public SubTask createSubTask(long epicId, String nameTask, String description, Status status) {
-        return super.createSubTask(epicId, nameTask, description, status);
-    }
-
-    //показывает историю просмотра задач и подзадач
-    @Override
-    public List<Task> history() {
-        return super.history();
-
-    }
 
 }

@@ -2,12 +2,11 @@ package manager;
 
 import history.HistoryManager;
 import history.InMemoryHistoryManager;
-import org.junit.jupiter.api.function.Executable;
 import task.*;
+import utility.Answers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
 
 //управляет задачами
 public class InMemoryTasksManager implements TaskManager {
@@ -17,6 +16,8 @@ public class InMemoryTasksManager implements TaskManager {
     private static HashMap<Long, SubTask> subtasks;
     protected static HistoryManager historyManager;
     private TaskID taskId;
+    protected TreeSet<Task> sortedTasks;
+    private static final int HOURS_IN_ONE_DAY = 24;
 
 
     public InMemoryTasksManager() {
@@ -25,11 +26,19 @@ public class InMemoryTasksManager implements TaskManager {
         subtasks = new HashMap<>();
         taskId = new TaskID();
         historyManager = new InMemoryHistoryManager();
+        Comparator<Task> comparator = (task1, task2) -> {
+                if (task1.getStartTime().isBefore(task2.getStartTime())) {
+                    return -1;
+                } else if (task1.getStartTime().isAfter(task2.getStartTime())) {
+                    return 1;
+                } else {
+                    return (int) (task1.getId() - (task2.getId()));
+
+                }
+        };
+        sortedTasks = new TreeSet<>(comparator);
 
     }
-
-
-
 
     public static void setTasks(Long id, Task task) {
         tasks.put(id, task);
@@ -58,13 +67,13 @@ public class InMemoryTasksManager implements TaskManager {
     // 2.3 Получение списка всех подзадач определённого эпика.
     @Override
     public List<SubTask> getSubTaskByEpicId(Long epicId) {
-        if (epicId < 0) {
-            System.out.println("Ошибка в ID");
-            return null;
+        if (epicId <= 0) {
+            System.err.println(Answers.WRONG_ID);
+            return List.of();
         }
         if (!epics.containsKey(epicId)) {
-            System.out.println("Эпика с таким Id нет");
-            return null;
+            System.out.println(Answers.NO_EPIC_WITH_ID.getAnswer());
+            return List.of();
         }
         for (SubTask subTask : epics.get(epicId).getSubtasks()) {
             historyManager.add(subTask);
@@ -94,7 +103,7 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public Task getTaskById(Long id) {
         if (id < 0) {
-            System.out.println("Ошибка в ID");
+            System.out.println(Answers.WRONG_ID.getAnswer());
             return null;
         }
         if (epics.containsKey(id)) {
@@ -107,7 +116,7 @@ public class InMemoryTasksManager implements TaskManager {
             historyManager.add(subtasks.get(id));
             return subtasks.get(id);
         } else {
-            System.out.println("Нет задач с таким ID");
+            System.out.println(Answers.NO_TASKS_WITH_ID.getAnswer());
             return null;
         }
     }
@@ -115,14 +124,27 @@ public class InMemoryTasksManager implements TaskManager {
     //2.5 Добавление новой задачи, эпика, подзадачи. Сам объект должен передаваться в качестве параметра.
     @Override
     public void addTask(Task newTask) {
+        getPrioritizedTasks();
         if (newTask instanceof Epic) {
             Epic newEpic = (Epic) newTask;
-            addNewEpic(newEpic);
+            if (getMassageAboutIntersection(newEpic)) {
+                addNewEpic(newEpic);
+            } else {
+                System.out.println(Answers.CHANGE_DATA_START_OR_DURATION.getAnswer());
+            }
         } else if (newTask instanceof SubTask) {
             SubTask newSubTask = (SubTask) newTask;
-            addSubtaskToEpic(newSubTask);
+            if (getMassageAboutIntersection(newSubTask)) {
+                addSubtaskToEpic(newSubTask);
+            } else {
+                System.out.println(Answers.CHANGE_DATA_START_OR_DURATION.getAnswer());
+            }
         } else {
-            addNewTask(newTask);
+            if (getMassageAboutIntersection(newTask)) {
+                addNewTask(newTask);
+            } else {
+                System.out.println(Answers.CHANGE_DATA_START_OR_DURATION.getAnswer());
+            }
         }
     }
 
@@ -130,7 +152,7 @@ public class InMemoryTasksManager implements TaskManager {
     private void addSubtaskToEpic(SubTask newSubTask) {
         Long epicId = newSubTask.getEpicId();
         if (!epics.containsKey(epicId)) {
-            System.out.println("Эпика с таким ID нет");
+            System.err.println(Answers.NO_EPIC_WITH_ID);
             return;
         }
         for (SubTask sabTask : subtasks.values()) {
@@ -139,16 +161,17 @@ public class InMemoryTasksManager implements TaskManager {
                return;
             }
         }
-        epics.get(epicId).getSubtasks().add(newSubTask);
-        System.out.println(epics);
         subtasks.put(newSubTask.getId(), newSubTask);
+        epics.get(epicId).getSubtasks().add(newSubTask);
+        updateEpic(epics.get(epicId));
+        updateEpicStatusDurationDataStart(epics.get(epicId));
     }
 
     //2.5 Добавление нового эпика
     private void addNewEpic(Epic newEpic) {
         for (Epic epic : epics.values()) {
             if (epic.equals(newEpic)) {
-                System.out.println("Такой эпик уже есть");
+                System.out.println(Answers.TASKS_ALREADY_EXIST.getAnswer());
                 return;
             }
         }
@@ -159,35 +182,50 @@ public class InMemoryTasksManager implements TaskManager {
     private void addNewTask(Task newTask) {
         for (Task task : tasks.values()) {
             if (task.equals(newTask)) {
-                System.out.println("Такая задача уже есть");
+                System.out.println(Answers.TASKS_ALREADY_EXIST.getAnswer());
                 return;
             }
         }
         tasks.put(newTask.getId(), newTask);
-
     }
 
     //2.6 Обновление задачи любого типа по идентификатору. Новая версия объекта передаётся в виде параметра.
     @Override
     public void updateAnyTask(Task task) {
+        getPrioritizedTasks();
         if (task instanceof Epic) {
             Epic newEpic = (Epic) task;
             if (epics.containsKey(newEpic.getId())) {
-                updateEpic(newEpic);
+                if (getMassageAboutIntersection(newEpic)) {
+                    updateEpic(newEpic);
+                } else {
+                    System.out.println(Answers.CHANGE_DATA_START_OR_DURATION.getAnswer());
+                }
             } else {
-                System.out.println("Эпика с таким ID нет. Добавьте эпик в список задач.");
+                System.out.println(Answers.NO_EPIC_WITH_ID.getAnswer());
             }
         } else if (task instanceof SubTask) {
             SubTask subTask = (SubTask) task;
             if (subtasks.containsKey(subTask.getId())) {
-                updateSubTask(subTask);
-                updateEpic(epics.get(subTask.getEpicId()));
+                if (getMassageAboutIntersection(subTask)) {
+                    updateSubTask(subTask);
+                    updateEpic(epics.get(subTask.getEpicId()));
+                } else {
+                    System.out.println(Answers.CHANGE_DATA_START_OR_DURATION.getAnswer());
+                }
+
+            } else {
+                System.out.println(Answers.NO_SUBTASK_WITH_ID.getAnswer());
             }
         } else {
             if (tasks.containsKey(task.getId())) {
-                updateTask(task);
+                if (getMassageAboutIntersection(task)) {
+                    updateTask(task);
+                } else {
+                    System.out.println(Answers.CHANGE_DATA_START_OR_DURATION.getAnswer());
+                }
             } else {
-                System.out.println("Задачи с таким ID нет. Добавьте задачу в список задач.");
+                System.out.println(Answers.NO_TASKS_WITH_ID.getAnswer());
             }
         }
     }
@@ -195,10 +233,16 @@ public class InMemoryTasksManager implements TaskManager {
     //обновление Эпика
     private void updateEpic(Epic newEpic) {
         epics.get(newEpic.getId()).setName(newEpic.getName());
-        epics.get(newEpic.getId()).setStatus(newEpic.getStatus());
         epics.get(newEpic.getId()).setDescription(newEpic.getDescription());
         epics.get(newEpic.getId()).setSubtasks(newEpic.getSubtasks());
+        updateEpicStatusDurationDataStart(newEpic);
+    }
 
+    //обновление статуса эпика, продолжительности и даты старта
+    private void updateEpicStatusDurationDataStart(Epic newEpic) {
+        epics.get(newEpic.getId()).setStatus(Status.getStatusForEpic(newEpic.getSubtasks()));
+        epics.get(newEpic.getId()).setDuration(Epic.getDurationForEpic(newEpic.getSubtasks()));
+        epics.get(newEpic.getId()).setStartTime(Epic.getDataStartForEpic(newEpic.getSubtasks()));
     }
 
     //обновление Задачи
@@ -226,10 +270,10 @@ public class InMemoryTasksManager implements TaskManager {
 
     // Удаление ранее добавленных задач по ID
     @Override
-    public void removeById(Long id) {
-        if (id < 0) {
-            System.out.println("Ошибка в ID");
-            return;
+    public String removeById(Long id) {
+        String result;
+        if (id <= 0) {
+            return Answers.WRONG_ID.getAnswer();
         }
         if (epics.containsKey(id)) {
             Epic epic = epics.get(id);
@@ -239,19 +283,20 @@ public class InMemoryTasksManager implements TaskManager {
             }
             epics.remove(id);
             historyManager.remove(id);
+            result = Answers.REMOVE_EPIC.getAnswer();
         } else if (tasks.containsKey(id)) {
             tasks.remove(id);
             historyManager.remove(id);
+            result = Answers.REMOVE_TASK.getAnswer();
         } else if (subtasks.containsKey(id)) {
             historyManager.remove(id);
-            ArrayList<Epic> epic = new ArrayList<>(epics.values());
-            for (Epic nextEpic : epic) {
-                nextEpic.getSubtasks().remove(subtasks.get(id));
-            }
+            epics.get(subtasks.get(id).getEpicId()).getSubtasks().remove(subtasks.get(id));
             subtasks.remove(id);
+            result = Answers.REMOVE_SUBTASK.getAnswer();
         } else {
-            System.out.println("Задач с таким id нет");
+            result = Answers.NO_TASKS_WITH_ID.getAnswer();
         }
+        return result;
     }
 
     //создание эпика
@@ -265,23 +310,28 @@ public class InMemoryTasksManager implements TaskManager {
                 subTasksForEpic.add(subTask);
             }
         }
-        return new Epic(id, nameEpic, description, subTasksForEpic, Status.getStatusForEpic(subTasksForEpic));
+        LocalDate startDate = Epic.getDataStartForEpic(subTasksForEpic);
+        List<Integer> date = Task.getYearMonthDatFromLocalDate(startDate);
+        return new Epic(id, nameEpic, description, subTasksForEpic, Status.getStatusForEpic(subTasksForEpic),
+                        date.get(0), date.get(1), date.get(2), Epic.getDurationForEpic(subTasksForEpic));
     }
 
     //создание задачи
     @Override
-    public Task createTask(String nameTask, String description, Status status) {
+    public Task createTask(String nameTask, String description, Status status, int year, int months, int day,
+                           int durationInHours) {
         taskId.setId(getLastId());
         long id = taskId.getId();
-        return new Task(id, nameTask, description, status);
+        return new Task(id, nameTask, description, status, year, months, day, durationInHours);
     }
 
     //создание подзадачи
     @Override
-    public SubTask createSubTask(long epicId, String nameTask, String description, Status status) {
+    public SubTask createSubTask(long epicId, String nameTask, String description, Status status, int year, int months,
+                                 int day, int durationInHours) {
         taskId.setId(getLastId());
         long id = taskId.getId();
-        return new SubTask(epicId, id, nameTask, description, status);
+        return new SubTask(epicId, id, nameTask, description, status, year, months, day, durationInHours);
     }
 
     // получение истории просмотра
@@ -308,7 +358,36 @@ public class InMemoryTasksManager implements TaskManager {
             }
         }
         return lastId;
+    }
 
+    // метод собирает задачи из всех мап в один лист и сортирует их по дате начала startTime
+    @Override
+    public TreeSet<Task> getPrioritizedTasks() {
+        sortedTasks.addAll(tasks.values());
+        sortedTasks.addAll(subtasks.values());
+        sortedTasks.addAll(epics.values());
+        return sortedTasks;
+    }
+
+    private Boolean getMassageAboutIntersection(Task newTask) {
+        LocalDate startDateForNewTask = newTask.getStartTime();
+        int duration = (int) newTask.getDuration().toHours();
+        for (Task task : sortedTasks) {
+            if (task instanceof Epic) {
+                continue;
+            }
+            if (startDateForNewTask.equals(task.getStartTime())) {
+                duration += task.getDuration().toHours();
+            }
+            if (newTask.getId().equals(task.getId())) {
+                duration -= task.getDuration().toHours();
+            }
+        }
+            if (duration > HOURS_IN_ONE_DAY) {
+                return false;
+            }
+        System.out.println("Задача с текущими значениями даты старта и продолжительностью добавлена");
+        return true;
     }
 
 }

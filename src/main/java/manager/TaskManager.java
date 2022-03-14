@@ -1,12 +1,12 @@
 package manager;
 
-import org.junit.jupiter.api.function.Executable;
 import task.Epic;
 import task.Status;
 import task.SubTask;
 import task.Task;
 
 import java.util.List;
+import java.util.TreeSet;
 
 public interface TaskManager {
 
@@ -35,19 +35,23 @@ public interface TaskManager {
     void removeAllTask();
 
     // Удаление ранее добавленных задач по ID
-    void removeById(Long id);
+    String removeById(Long id);
 
     //создание эпика
     Epic createEpic(String nameEpic, String description);
 
     //создание эпика
-    Task createTask(String nameTask, String description, Status status);
+    Task createTask(String nameTask, String description, Status status,  int year, int months, int day, int durationInHours);
 
     //создание эпика
-    SubTask createSubTask(long epicId, String nameTask, String description, Status status);
+    SubTask createSubTask(long epicId, String nameTask, String description, Status status,int year, int months,
+                          int day, int durationInHours );
 
     //показывает историю просмотра задач и подзадач
     List<Task> history();
+
+    // возвращает список отсортированных задач по дате старта
+    TreeSet<Task> getPrioritizedTasks();
 
 
 }
