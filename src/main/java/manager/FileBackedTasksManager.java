@@ -118,7 +118,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
 
     // сохраняет все задачи, такси и подзадачи и историю просмотров в файл csv
-    public Executable save() {
+    public void save() {
         String line;
         String firstLine = "id,type,name,status,description,startTime,duration,epic\n";
         try (Writer fileWriter = new FileWriter(filePath, StandardCharsets.UTF_8)) {
@@ -140,12 +140,11 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                 fileWriter.write(toString(historyManager));
             }
         } catch (FileNotFoundException e) {
-            throw new ManagerSaveException("В указанной директории файла нет или процесс не может получить доступ к файлу, " +
+            throw new ManagerSaveException("В указанной директории файла нет или процесс не может получить доступ к файлу," +
                             "так как этот файл занят другим процессом");
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка в сохранении файла по указанному пути" + filePath);
         }
-        return null;
     }
 
     //2.5 Добавление новой задачи, эпика, подзадачи. Сохранение задачи в файл.

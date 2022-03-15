@@ -6,9 +6,9 @@ import java.util.Locale;
 // хранит типы статусов задач
 public enum Status {
 
-    NEW ("NEW"),
-    IN_PROGRESS ("IN_PROGRESS"),
-    DONE ("DONE");
+    NEW("NEW"),
+    IN_PROGRESS("IN_PROGRESS"),
+    DONE("DONE");
 
     private final String status;
 
@@ -42,6 +42,7 @@ public enum Status {
             return NEW;
         }
     }
+
     public static Status toStatus(String taskStatus) {
         taskStatus = taskStatus.toUpperCase(Locale.ROOT);
         if (taskStatus.equals(Status.NEW.status)) {

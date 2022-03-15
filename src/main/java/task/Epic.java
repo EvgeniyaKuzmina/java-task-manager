@@ -28,16 +28,8 @@ public class Epic extends Task {
         int month = Integer.parseInt(time[1]);
         int day = Integer.parseInt(time[0]);
         int duration = Integer.parseInt(splitedLine[6]);
-        return new Epic(id, name, description, subtasks, Status.toStatus(status),year, month, day, duration);
+        return new Epic(id, name, description, subtasks, Status.toStatus(status), year, month, day, duration);
 
-    }
-
-    public List<SubTask> getSubtasks() {
-        return subtasks;
-    }
-
-    public void setSubtasks(List<SubTask> subtasks) {
-        this.subtasks = subtasks;
     }
 
     public static int getDurationForEpic(List<SubTask> subtasks) {
@@ -58,10 +50,19 @@ public class Epic extends Task {
         }
         LocalDate startTime = subtasks.get(0).getStartTime();
         for (SubTask subtask : subtasks) {
-            if (startTime.isAfter(subtask.getStartTime()))
+            if (startTime.isAfter(subtask.getStartTime())) {
                 startTime = subtask.getStartTime();
+            }
         }
         return startTime;
+    }
+
+    public List<SubTask> getSubtasks() {
+        return subtasks;
+    }
+
+    public void setSubtasks(List<SubTask> subtasks) {
+        this.subtasks = subtasks;
     }
 
     @Override
@@ -71,7 +72,7 @@ public class Epic extends Task {
         if (!(o instanceof Epic)) return false;
         if (!super.equals(o)) return false;
         Epic epic = (Epic) o;
-        return  Objects.equals(name, epic.name) &&
+        return Objects.equals(name, epic.name) &&
                 Objects.equals(description, epic.description);
     }
 

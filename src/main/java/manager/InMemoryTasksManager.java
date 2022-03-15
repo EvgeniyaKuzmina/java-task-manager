@@ -11,13 +11,13 @@ import java.util.*;
 //управляет задачами
 public class InMemoryTasksManager implements TaskManager {
 
+    private static final int HOURS_IN_ONE_DAY = 24;
+    protected static HistoryManager historyManager;
     private static HashMap<Long, Epic> epics;
     private static HashMap<Long, Task> tasks;
     private static HashMap<Long, SubTask> subtasks;
-    protected static HistoryManager historyManager;
-    private TaskID taskId;
     protected TreeSet<Task> sortedTasks;
-    private static final int HOURS_IN_ONE_DAY = 24;
+    private TaskID taskId;
 
 
     public InMemoryTasksManager() {
@@ -27,14 +27,14 @@ public class InMemoryTasksManager implements TaskManager {
         taskId = new TaskID();
         historyManager = new InMemoryHistoryManager();
         Comparator<Task> comparator = (task1, task2) -> {
-                if (task1.getStartTime().isBefore(task2.getStartTime())) {
-                    return -1;
-                } else if (task1.getStartTime().isAfter(task2.getStartTime())) {
-                    return 1;
-                } else {
-                    return (int) (task1.getId() - (task2.getId()));
+            if (task1.getStartTime().isBefore(task2.getStartTime())) {
+                return -1;
+            } else if (task1.getStartTime().isAfter(task2.getStartTime())) {
+                return 1;
+            } else {
+                return (int) (task1.getId() - (task2.getId()));
 
-                }
+            }
         };
         sortedTasks = new TreeSet<>(comparator);
 
@@ -157,8 +157,8 @@ public class InMemoryTasksManager implements TaskManager {
         }
         for (SubTask sabTask : subtasks.values()) {
             if (newSubTask.equals(sabTask)) {
-               System.out.printf("Такая подзадача в эпике %s уже есть\n", newSubTask.getEpicId());
-               return;
+                System.out.printf("Такая подзадача в эпике %s уже есть\n", newSubTask.getEpicId());
+                return;
             }
         }
         subtasks.put(newSubTask.getId(), newSubTask);
@@ -340,7 +340,7 @@ public class InMemoryTasksManager implements TaskManager {
         return historyManager.getHistoryList();
     }
 
-    private long getLastId(){
+    private long getLastId() {
         long lastId = 0;
         for (Long id : epics.keySet()) {
             if (lastId < id) {
@@ -383,9 +383,9 @@ public class InMemoryTasksManager implements TaskManager {
                 duration -= task.getDuration().toHours();
             }
         }
-            if (duration > HOURS_IN_ONE_DAY) {
-                return false;
-            }
+        if (duration > HOURS_IN_ONE_DAY) {
+            return false;
+        }
         System.out.println("Задача с текущими значениями даты старта и продолжительностью добавлена");
         return true;
     }

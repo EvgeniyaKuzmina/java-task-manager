@@ -17,10 +17,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         tasksMapHistory = new HashMap<>();
     }
 
-    public HashMap<Long, Node<Task>> getTasksMapHistory() {
-        return tasksMapHistory;
-    }
-
     // добавляет задачу в конец списка просмотров, удаляет ранее просмотренную такую же задачу
     @Override
     public void add(Task task) {
