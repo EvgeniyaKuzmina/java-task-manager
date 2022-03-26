@@ -127,20 +127,20 @@ public class InMemoryTasksManager implements TaskManager {
         getPrioritizedTasks();
         if (newTask instanceof Epic) {
             Epic newEpic = (Epic) newTask;
-            if (getMassageAboutIntersection(newEpic)) {
+            if (getMessageAboutIntersection(newEpic)) {
                 addNewEpic(newEpic);
             } else {
                 System.out.println(Answers.CHANGE_DATA_START_OR_DURATION.getAnswer());
             }
         } else if (newTask instanceof SubTask) {
             SubTask newSubTask = (SubTask) newTask;
-            if (getMassageAboutIntersection(newSubTask)) {
+            if (getMessageAboutIntersection(newSubTask)) {
                 addSubtaskToEpic(newSubTask);
             } else {
                 System.out.println(Answers.CHANGE_DATA_START_OR_DURATION.getAnswer());
             }
         } else {
-            if (getMassageAboutIntersection(newTask)) {
+            if (getMessageAboutIntersection(newTask)) {
                 addNewTask(newTask);
             } else {
                 System.out.println(Answers.CHANGE_DATA_START_OR_DURATION.getAnswer());
@@ -196,7 +196,7 @@ public class InMemoryTasksManager implements TaskManager {
         if (task instanceof Epic) {
             Epic newEpic = (Epic) task;
             if (epics.containsKey(newEpic.getId())) {
-                if (getMassageAboutIntersection(newEpic)) {
+                if (getMessageAboutIntersection(newEpic)) {
                     updateEpic(newEpic);
                 } else {
                     System.out.println(Answers.CHANGE_DATA_START_OR_DURATION.getAnswer());
@@ -207,7 +207,7 @@ public class InMemoryTasksManager implements TaskManager {
         } else if (task instanceof SubTask) {
             SubTask subTask = (SubTask) task;
             if (subtasks.containsKey(subTask.getId())) {
-                if (getMassageAboutIntersection(subTask)) {
+                if (getMessageAboutIntersection(subTask)) {
                     updateSubTask(subTask);
                     updateEpic(epics.get(subTask.getEpicId()));
                 } else {
@@ -219,7 +219,7 @@ public class InMemoryTasksManager implements TaskManager {
             }
         } else {
             if (tasks.containsKey(task.getId())) {
-                if (getMassageAboutIntersection(task)) {
+                if (getMessageAboutIntersection(task)) {
                     updateTask(task);
                 } else {
                     System.out.println(Answers.CHANGE_DATA_START_OR_DURATION.getAnswer());
@@ -318,11 +318,11 @@ public class InMemoryTasksManager implements TaskManager {
 
     //создание задачи
     @Override
-    public Task createTask(String nameTask, String description, Status status, int year, int months, int day,
+    public Task createTask(String nameTask, String description, Status status, int year, int month, int day,
                            int durationInHours) {
         taskId.setId(getLastId());
         long id = taskId.getId();
-        return new Task(id, nameTask, description, status, year, months, day, durationInHours);
+        return new Task(id, nameTask, description, status, year, month, day, durationInHours);
     }
 
     //создание подзадачи
@@ -340,24 +340,16 @@ public class InMemoryTasksManager implements TaskManager {
         return historyManager.getHistoryList();
     }
 
+    // получаем последний id из всех задач
     private long getLastId() {
-        long lastId = 0;
-        for (Long id : epics.keySet()) {
-            if (lastId < id) {
-                lastId = id;
-            }
-        }
-        for (Long id : tasks.keySet()) {
-            if (lastId < id) {
-                lastId = id;
-            }
-        }
-        for (Long id : subtasks.keySet()) {
-            if (lastId < id) {
-                lastId = id;
-            }
-        }
-        return lastId;
+        Comparator<Long> comparator = (id1, id2) -> (int) (id1 - id2);
+        LinkedList <Long> allId = new LinkedList<>();
+        allId.addAll(epics.keySet());
+        allId.addAll(tasks.keySet());
+        allId.addAll(subtasks.keySet());
+        if (allId.isEmpty()) return 0;
+        allId.sort(comparator);
+        return allId.getLast();
     }
 
     // метод собирает задачи из всех мап в один лист и сортирует их по дате начала startTime
@@ -369,7 +361,7 @@ public class InMemoryTasksManager implements TaskManager {
         return sortedTasks;
     }
 
-    private Boolean getMassageAboutIntersection(Task newTask) {
+    private Boolean getMessageAboutIntersection(Task newTask) {
         LocalDate startDateForNewTask = newTask.getStartTime();
         int duration = (int) newTask.getDuration().toHours();
         for (Task task : sortedTasks) {

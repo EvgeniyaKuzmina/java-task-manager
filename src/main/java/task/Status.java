@@ -1,5 +1,6 @@
 package task;
 
+
 import java.util.List;
 import java.util.Locale;
 
@@ -14,6 +15,19 @@ public enum Status {
 
     Status(String status) {
         this.status = status;
+    }
+
+    public static Status setStatus(String status) {
+        if (status.equals("\"NEW\"")) {
+            return NEW;
+        } else if (status.equals("\"IN_PROGRESS\"")) {
+            return IN_PROGRESS;
+        } else if (status.equals("\"DONE\"")){
+            return DONE;
+        } else {
+            System.out.println("некорректный статус задачи");
+            return null;
+        }
     }
 
     public static Status getStatusForEpic(List<SubTask> subTasks) {

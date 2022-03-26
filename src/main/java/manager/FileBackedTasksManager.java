@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 
 public class FileBackedTasksManager extends InMemoryTasksManager {
@@ -193,6 +194,11 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         String result = super.removeById(id);
         save();
         return result;
+    }
+    @Override
+    public TreeSet<Task> getPrioritizedTasks() {
+        return super.getPrioritizedTasks();
+
     }
 
 

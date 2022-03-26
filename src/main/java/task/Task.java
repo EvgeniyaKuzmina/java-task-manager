@@ -27,7 +27,7 @@ public class Task {
             if (LocalDate.of(year, months, day).isBefore(LocalDate.now())) {
                 throw new WrongArgumentException(
                         "неверно ведённые значения для даты старта. Дата старта должна быть " +
-                                "такая же или позднее текущей даты" + LocalDate.now().format(FORMATTER));
+                                "такая же или позднее текущей даты " + LocalDate.now().format(FORMATTER));
             } else {
                 startTime = LocalDate.of(year, months, day);
                 duration = Duration.ofHours(durationInHours);

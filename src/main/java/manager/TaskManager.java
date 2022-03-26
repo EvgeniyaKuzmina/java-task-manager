@@ -41,7 +41,7 @@ public interface TaskManager {
     Epic createEpic(String nameEpic, String description);
 
     //создание эпика
-    Task createTask(String nameTask, String description, Status status, int year, int months, int day, int durationInHours);
+    Task createTask(String nameTask, String description, Status status, int year, int month, int day, int durationInHours);
 
     //создание эпика
     SubTask createSubTask(long epicId, String nameTask, String description, Status status, int year, int months,
