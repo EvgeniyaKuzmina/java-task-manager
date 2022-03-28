@@ -47,16 +47,16 @@ class FileBackedTasksManagerTest {
     //То есть ни один тест не был запущен. В результате я оставила так как есть)) кажется далее на курсе будет тема про maven
     @BeforeEach
     void beforeEach() {
-        taskNew = new Task(1L, "Задача 1", "описание задачи", Status.NEW, 2022, 3, 25, 5);
-        taskInProgress = new Task(2L, "Задача 2", "описание задачи", Status.IN_PROGRESS, 2022, 3, 25, 5);
-        subTaskNew = new SubTask(1L, 3L, "Подзадача 1", "описание подзадачи", Status.NEW, 2022, 3, 25, 15);
-        subTaskDone = new SubTask(1L, 4L, "Подзадача 2", "описание подзадачи", Status.DONE, 2022, 3, 25, 7);
-        epicWithEmptySubTask = new Epic(1L, "Эпик 1", "описание задачи", new ArrayList<>(), Status.NEW, 2022, 3, 25,
+        taskNew = new Task(1L, "Задача 1", "описание задачи", Status.NEW, 2023, 3, 25, 5);
+        taskInProgress = new Task(2L, "Задача 2", "описание задачи", Status.IN_PROGRESS, 2023, 3, 25, 5);
+        subTaskNew = new SubTask(1L, 3L, "Подзадача 1", "описание подзадачи", Status.NEW, 2023, 3, 25, 15);
+        subTaskDone = new SubTask(1L, 4L, "Подзадача 2", "описание подзадачи", Status.DONE, 2023, 3, 25, 7);
+        epicWithEmptySubTask = new Epic(1L, "Эпик 1", "описание задачи", new ArrayList<>(), Status.NEW, 2023, 3, 25,
                                         15);
         epicInProgress = new Epic(1L, "Задача 15", "описание задачи", List.of(subTaskNew, subTaskDone),
-                                  Status.IN_PROGRESS, 2022, 3, 25, 15);
-        epicDone = new Epic(6L, "Задача 15", "описание задачи", List.of(subTaskDone), Status.DONE, 2022, 3, 25, 15);
-        epicNew = new Epic(7L, "Задача 25", "описание задачи", List.of(subTaskNew), Status.DONE, 2022, 3, 25, 15);
+                                  Status.IN_PROGRESS, 2023, 3, 25, 15);
+        epicDone = new Epic(6L, "Задача 15", "описание задачи", List.of(subTaskDone), Status.DONE, 2023, 3, 25, 15);
+        epicNew = new Epic(7L, "Задача 25", "описание задачи", List.of(subTaskNew), Status.DONE, 2023, 3, 25, 15);
 
 
     }
@@ -79,21 +79,21 @@ class FileBackedTasksManagerTest {
     @Test
     void shouldReturnFileBackedTasksManagerWithRestoredTasksAndHistory() {
         SubTask subtask = new SubTask(4L, 5L, "подзадача 1", "описание подзадачи 1",
-                                      Status.NEW, 2022, 3, 25, 15);
+                                      Status.NEW, 2023, 3, 25, 15);
         SubTask subtask1 = new SubTask(4L, 6L, "подзадача 2", "описание подзадачи 2",
-                                       Status.NEW, 2022, 3, 25, 15);
+                                       Status.NEW, 2023, 3, 25, 15);
         SubTask subtask2 = new SubTask(4L, 7L, "подзадача 3", "описание подзадачи 3",
-                                       Status.NEW, 2022, 3, 25, 15);
+                                       Status.NEW, 2023, 3, 25, 15);
 
         Task task = new Task(1L, "Задача 15", "описание задачи",
-                             Status.NEW, 2022, 3, 25, 15);
+                             Status.NEW, 2023, 3, 25, 15);
         Task task1 = new Task(2L, "Задача 526", "описание задачи",
-                              Status.IN_PROGRESS, 2022, 3, 25, 15);
+                              Status.IN_PROGRESS, 2023, 3, 25, 15);
         Task task2 = new Task(3L, "Задача 20", "новое описание задачи",
-                              Status.IN_PROGRESS, 2022, 3, 25, 15);
+                              Status.IN_PROGRESS, 2023, 3, 25, 15);
 
         Epic epic = new Epic(4L, "Эпик 15", "описание задачи", List.of(subtask, subtask1, subtask2),
-                             Status.NEW, 2022, 3, 25, 15);
+                             Status.NEW, 2023, 3, 25, 15);
 
         tm = FileBackedTasksManager.loadFromFile(Paths.get("recources/forTestIfFileContainsEpicTaskSubtask"));
         assertEquals(List.of(task, task1, task2), tm.getTasksList());
@@ -119,11 +119,11 @@ class FileBackedTasksManagerTest {
     // эпики без подзадач
     @Test
     void shouldReturnFileBackedTasksManagerWithRestoredEpicsWithoutSubTask() {
-        Task task = new Task(1L, "Задача 15", "описание задачи", Status.NEW, 2022, 3, 25, 15);
-        Task task1 = new Task(2L, "Задача 526", "описание задачи", Status.IN_PROGRESS, 2022, 3, 25, 15);
-        Task task2 = new Task(3L, "Задача 20", "новое описание задачи", Status.IN_PROGRESS, 2022, 3, 25, 15);
+        Task task = new Task(1L, "Задача 15", "описание задачи", Status.NEW, 2023, 3, 25, 15);
+        Task task1 = new Task(2L, "Задача 526", "описание задачи", Status.IN_PROGRESS, 2023, 3, 25, 15);
+        Task task2 = new Task(3L, "Задача 20", "новое описание задачи", Status.IN_PROGRESS, 2023, 3, 25, 15);
 
-        Epic epic = new Epic(4L, "Эпик 15", "описание задачи", List.of(), Status.NEW, 2022, 3, 25, 15);
+        Epic epic = new Epic(4L, "Эпик 15", "описание задачи", List.of(), Status.NEW, 2023, 3, 25, 15);
 
         tm = FileBackedTasksManager.loadFromFile(Paths.get("recources/forTestEpicWithoutSubTask"));
         assertEquals(List.of(task, task1, task2), tm.getTasksList());
@@ -141,9 +141,9 @@ class FileBackedTasksManagerTest {
         tm.save();
         try {
             assertEquals("id,type,name,status,description,startTime,duration,epic\n" +
-                                 "2,TASK,Задача 2,IN_PROGRESS,описание задачи,25.03.2022,5\n" +
-                                 "1,EPIC,Эпик 1,NEW,описание задачи,25.03.2022,15\n" +
-                                 "3,SUBTASK,Подзадача 1,NEW,описание подзадачи,25.03.2022,15,1",
+                                 "2,TASK,Задача 2,IN_PROGRESS,описание задачи,25.03.2023,5\n" +
+                                 "1,EPIC,Эпик 1,NEW,описание задачи,25.03.2023,15\n" +
+                                 "3,SUBTASK,Подзадача 1,NEW,описание подзадачи,25.03.2023,15,1",
                          Files.readString(Paths.get("recources/forTest"), StandardCharsets.UTF_8).trim());
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка в чтении файла " + "recources/forTest");
@@ -161,8 +161,8 @@ class FileBackedTasksManagerTest {
         tm.save();
         try {
             assertEquals("id,type,name,status,description,startTime,duration,epic\n" +
-                                 "1,EPIC,Эпик 1,NEW,описание задачи,25.03.2022,15\n" +
-                                 "3,SUBTASK,Подзадача 1,NEW,описание подзадачи,25.03.2022,15,1",
+                                 "1,EPIC,Эпик 1,NEW,описание задачи,25.03.2023,15\n" +
+                                 "3,SUBTASK,Подзадача 1,NEW,описание подзадачи,25.03.2023,15,1",
                          Files.readString(Paths.get("recources/forTest"), StandardCharsets.UTF_8).trim());
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка в чтении файла " + "recources/forTest");
@@ -180,7 +180,7 @@ class FileBackedTasksManagerTest {
         tm.save();
         try {
             assertEquals("id,type,name,status,description,startTime,duration,epic\n" +
-                                 "2,TASK,Задача 2,IN_PROGRESS,описание задачи,25.03.2022,5",
+                                 "2,TASK,Задача 2,IN_PROGRESS,описание задачи,25.03.2023,5",
                          Files.readString(Paths.get("recources/forTest"), StandardCharsets.UTF_8).trim());
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка в чтении файла " + "recources/forTest");
@@ -195,14 +195,14 @@ class FileBackedTasksManagerTest {
         tm.addTask(subTaskNew);
         tm.addTask(taskInProgress);
         Epic epic = new Epic(1L, "Эпик 1", "описание эпика после обновления", List.of(subTaskNew),
-                             Status.DONE, 2022, 3, 25, 0);
+                             Status.DONE, 2023, 3, 25, 0);
         tm.updateAnyTask(epic);
         tm.save();
         try {
             assertEquals("id,type,name,status,description,startTime,duration,epic\n" +
-                                 "2,TASK,Задача 2,IN_PROGRESS,описание задачи,25.03.2022,5\n" +
-                                 "1,EPIC,Эпик 1,NEW,описание эпика после обновления,25.03.2022,15\n" +
-                                 "3,SUBTASK,Подзадача 1,NEW,описание подзадачи,25.03.2022,15,1",
+                                 "2,TASK,Задача 2,IN_PROGRESS,описание задачи,25.03.2023,5\n" +
+                                 "1,EPIC,Эпик 1,NEW,описание эпика после обновления,25.03.2023,15\n" +
+                                 "3,SUBTASK,Подзадача 1,NEW,описание подзадачи,25.03.2023,15,1",
                          Files.readString(Paths.get("recources/forTest"), StandardCharsets.UTF_8).trim());
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка в чтении файла " + "recources/forTest");
@@ -220,9 +220,9 @@ class FileBackedTasksManagerTest {
         tm.save();
         try {
             assertEquals("id,type,name,status,description,startTime,duration,epic\n" +
-                                 "2,TASK,Задача 2,IN_PROGRESS,описание задачи,25.03.2022,5\n" +
-                                 "1,EPIC,Эпик 1,NEW,описание задачи,25.03.2022,15\n" +
-                                 "3,SUBTASK,Подзадача 1,NEW,описание подзадачи,25.03.2022,15,1\n\n1,",
+                                 "2,TASK,Задача 2,IN_PROGRESS,описание задачи,25.03.2023,5\n" +
+                                 "1,EPIC,Эпик 1,NEW,описание задачи,25.03.2023,15\n" +
+                                 "3,SUBTASK,Подзадача 1,NEW,описание подзадачи,25.03.2023,15,1\n\n1,",
                          Files.readString(Paths.get("recources/forTest"), StandardCharsets.UTF_8).trim());
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка в чтении файла " + "recources/forTest");
@@ -242,7 +242,7 @@ class FileBackedTasksManagerTest {
         tm.save();
         try {
             assertEquals("id,type,name,status,description,startTime,duration,epic\n" +
-                                 "2,TASK,Задача 2,IN_PROGRESS,описание задачи,25.03.2022,5",
+                                 "2,TASK,Задача 2,IN_PROGRESS,описание задачи,25.03.2023,5",
                          Files.readString(Paths.get("recources/forTest"), StandardCharsets.UTF_8).trim());
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка в чтении файла " + "recources/forTest");

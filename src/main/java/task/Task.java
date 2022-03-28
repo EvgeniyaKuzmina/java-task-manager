@@ -18,18 +18,18 @@ public class Task {
     protected LocalDate startTime;
     protected Duration duration;
 
-    public Task(Long id, String name, String description, Status status, int year, int months, int day, int durationInHours) {
+    public Task(Long id, String name, String description, Status status, int year, int month, int day, int durationInHours) {
         this.name = name;
         this.description = description;
         this.id = id;
         this.status = status;
-        if (durationInHours >= 0 && year > 0 && (months > 0 && months <= 12) && (day > 0 && day <= 31)) {
-            if (LocalDate.of(year, months, day).isBefore(LocalDate.now())) {
+        if (durationInHours >= 0 && year > 0 && (month > 0 && month <= 12) && (day > 0 && day <= 31)) {
+            if (LocalDate.of(year, month, day).isBefore(LocalDate.now())) {
                 throw new WrongArgumentException(
                         "неверно ведённые значения для даты старта. Дата старта должна быть " +
                                 "такая же или позднее текущей даты " + LocalDate.now().format(FORMATTER));
             } else {
-                startTime = LocalDate.of(year, months, day);
+                startTime = LocalDate.of(year, month, day);
                 duration = Duration.ofHours(durationInHours);
             }
         } else {

@@ -26,10 +26,10 @@ class HistoryManagerTest {
     @BeforeEach
     void beforeEach() {
         hm = new InMemoryHistoryManager();
-        task = new Task(2L, "Задача 1", "описание задачи", Status.NEW, 2022, 3, 25, 15);
-        subTaskNew = new SubTask(1L, 3L, "Подзадача 1", "описание подзадачи", Status.NEW, 2022, 3, 25, 15);
-        subTaskDone = new SubTask(1L, 4L, "Подзадача 2", "описание подзадачи", Status.DONE, 2022, 3, 25, 15);
-        epic = new Epic(1L, "Эпик 1", "описание задачи", new ArrayList<>(), Status.NEW, 2022, 3, 25, 15);
+        task = new Task(2L, "Задача 1", "описание задачи", Status.NEW, 2023, 3, 25, 15);
+        subTaskNew = new SubTask(1L, 3L, "Подзадача 1", "описание подзадачи", Status.NEW, 2023, 3, 25, 15);
+        subTaskDone = new SubTask(1L, 4L, "Подзадача 2", "описание подзадачи", Status.DONE, 2023, 3, 25, 15);
+        epic = new Epic(1L, "Эпик 1", "описание задачи", new ArrayList<>(), Status.NEW, 2023, 3, 25, 15);
     }
 
 

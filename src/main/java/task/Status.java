@@ -18,15 +18,16 @@ public enum Status {
     }
 
     public static Status setStatus(String status) {
-        if (status.equals("\"NEW\"")) {
-            return NEW;
-        } else if (status.equals("\"IN_PROGRESS\"")) {
-            return IN_PROGRESS;
-        } else if (status.equals("\"DONE\"")){
-            return DONE;
-        } else {
-            System.out.println("некорректный статус задачи");
-            return null;
+        switch (status) {
+            case "\"NEW\"":
+                return NEW;
+            case "\"IN_PROGRESS\"":
+                return IN_PROGRESS;
+            case "\"DONE\"":
+                return DONE;
+            default:
+                System.out.println("некорректный статус задачи");
+                return null;
         }
     }
 
@@ -34,7 +35,7 @@ public enum Status {
         boolean statusNew = false;
         boolean statusDone = false;
         boolean statusInProgress = false;
-        if (subTasks.size() == 0) {
+        if (subTasks.isEmpty()) {
             return NEW;
         }
         for (SubTask subtask : subTasks) {

@@ -16,7 +16,6 @@ public class InMemoryTasksManager implements TaskManager {
     private static HashMap<Long, Epic> epics;
     private static HashMap<Long, Task> tasks;
     private static HashMap<Long, SubTask> subtasks;
-    protected TreeSet<Task> sortedTasks;
     private TaskID taskId;
 
 
@@ -26,17 +25,6 @@ public class InMemoryTasksManager implements TaskManager {
         subtasks = new HashMap<>();
         taskId = new TaskID();
         historyManager = new InMemoryHistoryManager();
-        Comparator<Task> comparator = (task1, task2) -> {
-            if (task1.getStartTime().isBefore(task2.getStartTime())) {
-                return -1;
-            } else if (task1.getStartTime().isAfter(task2.getStartTime())) {
-                return 1;
-            } else {
-                return (int) (task1.getId() - (task2.getId()));
-
-            }
-        };
-        sortedTasks = new TreeSet<>(comparator);
 
     }
 
@@ -355,6 +343,17 @@ public class InMemoryTasksManager implements TaskManager {
     // метод собирает задачи из всех мап в один лист и сортирует их по дате начала startTime
     @Override
     public TreeSet<Task> getPrioritizedTasks() {
+        Comparator<Task> comparator = (task1, task2) -> {
+            if (task1.getStartTime().isBefore(task2.getStartTime())) {
+                return -1;
+            } else if (task1.getStartTime().isAfter(task2.getStartTime())) {
+                return 1;
+            } else {
+                return (int) (task1.getId() - (task2.getId()));
+
+            }
+        };
+        TreeSet<Task>  sortedTasks = new TreeSet<>(comparator);
         sortedTasks.addAll(tasks.values());
         sortedTasks.addAll(subtasks.values());
         sortedTasks.addAll(epics.values());
@@ -364,6 +363,7 @@ public class InMemoryTasksManager implements TaskManager {
     private Boolean getMessageAboutIntersection(Task newTask) {
         LocalDate startDateForNewTask = newTask.getStartTime();
         int duration = (int) newTask.getDuration().toHours();
+        TreeSet<Task> sortedTasks = getPrioritizedTasks();
         for (Task task : sortedTasks) {
             if (task instanceof Epic) {
                 continue;

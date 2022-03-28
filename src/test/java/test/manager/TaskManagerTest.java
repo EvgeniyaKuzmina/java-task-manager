@@ -33,17 +33,17 @@ public class TaskManagerTest {
     @BeforeEach
     void beforeEach() {
         tm = new InMemoryTasksManager();
-        taskNew = new Task(1L, "Задача 1", "описание задачи", Status.NEW, 2022, 3, 25, 9);
-        taskInProgress = new Task(2L, "Задача 2", "описание задачи", Status.IN_PROGRESS, 2022, 3, 25, 7);
-        subTaskNew = new SubTask(1L, 3L, "Подзадача 1", "описание подзадачи", Status.NEW, 2022, 3, 25, 10);
-        subTaskDone = new SubTask(1L, 4L, "Подзадача 2", "описание подзадачи", Status.DONE, 2022, 3, 25, 5);
-        subTaskInProgress = new SubTask(1L, 4L, "Подзадача 2", "описание подзадачи", Status.IN_PROGRESS, 2022, 3, 25,
+        taskNew = new Task(1L, "Задача 1", "описание задачи", Status.NEW, 2023, 3, 25, 9);
+        taskInProgress = new Task(2L, "Задача 2", "описание задачи", Status.IN_PROGRESS, 2023, 3, 25, 7);
+        subTaskNew = new SubTask(1L, 3L, "Подзадача 1", "описание подзадачи", Status.NEW, 2023, 3, 25, 10);
+        subTaskDone = new SubTask(1L, 4L, "Подзадача 2", "описание подзадачи", Status.DONE, 2023, 3, 25, 5);
+        subTaskInProgress = new SubTask(1L, 4L, "Подзадача 2", "описание подзадачи", Status.IN_PROGRESS, 2023, 3, 25,
                                         10);
-        epicWithEmptySubTask = new Epic(1L, "Эпик 1", "описание задачи", new ArrayList<>(), Status.NEW, 2022, 3, 25, 1);
+        epicWithEmptySubTask = new Epic(1L, "Эпик 1", "описание задачи", new ArrayList<>(), Status.NEW, 2023, 3, 25, 1);
         epicInProgress = new Epic(1L, "Задача 15", "описание задачи", List.of(subTaskNew, subTaskDone),
-                                  Status.IN_PROGRESS, 2022, 3, 25, 15);
-        epicDone = new Epic(6L, "Задача 15", "описание задачи", List.of(subTaskDone), Status.DONE, 2022, 3, 25, 15);
-        epicNew = new Epic(7L, "Задача 25", "описание задачи", List.of(subTaskNew), Status.DONE, 2022, 3, 25, 15);
+                                  Status.IN_PROGRESS, 2023, 3, 25, 15);
+        epicDone = new Epic(6L, "Задача 15", "описание задачи", List.of(subTaskDone), Status.DONE, 2023, 3, 25, 15);
+        epicNew = new Epic(7L, "Задача 25", "описание задачи", List.of(subTaskNew), Status.DONE, 2023, 3, 25, 15);
     }
 
     // тест, что возвращается список подзадач конкретного эпика
@@ -135,7 +135,7 @@ public class TaskManagerTest {
     @Test
     void shouldReturnUpdateEpic() {
         tm.addTask(epicWithEmptySubTask);
-        Epic epic = new Epic(1L, "Эпик 1", "описание эпика после обновления", new ArrayList<>(), Status.DONE, 2022, 3,
+        Epic epic = new Epic(1L, "Эпик 1", "описание эпика после обновления", new ArrayList<>(), Status.DONE, 2023, 3,
                              25, 15);
         tm.updateAnyTask(epic);
         assertEquals(epic, tm.getTaskById(1L));
@@ -150,7 +150,7 @@ public class TaskManagerTest {
     void shouldReturnUpdateEpicWithSubTasks() {
         tm.addTask(epicWithEmptySubTask);
         Epic epic = new Epic(1L, "Эпик 1", "описание эпика после обновления", List.of(subTaskNew, subTaskDone),
-                             Status.IN_PROGRESS, 2022, 3, 25, 15);
+                             Status.IN_PROGRESS, 2023, 3, 25, 15);
         tm.updateAnyTask(epic);
         assertEquals(List.of(subTaskNew, subTaskDone), tm.getSubTaskByEpicId(1L));
         assertEquals(Status.IN_PROGRESS, tm.getTaskById(1L).getStatus());
@@ -162,7 +162,7 @@ public class TaskManagerTest {
     @Test
     void shouldReturnUpdateTask() {
         tm.addTask(taskNew);
-        Task task = new Task(1L, "Эпик 1", "описание задачи после обновления", Status.DONE, 2022, 3, 25, 15);
+        Task task = new Task(1L, "Эпик 1", "описание задачи после обновления", Status.DONE, 2023, 3, 25, 15);
         tm.updateAnyTask(task);
         assertEquals(task, tm.getTaskById(1L));
         assertEquals(Status.DONE, tm.getTaskById(1L).getStatus());
@@ -175,7 +175,7 @@ public class TaskManagerTest {
     void shouldReturnUpdateSubTask() {
         tm.addTask(epicWithEmptySubTask);
         tm.addTask(subTaskNew);
-        SubTask subTask = new SubTask(1L, 3L, "Подзадача 1", "описание подзадачи после обновления", Status.DONE, 2022,
+        SubTask subTask = new SubTask(1L, 3L, "Подзадача 1", "описание подзадачи после обновления", Status.DONE, 2023,
                                       3, 25, 15);
         tm.updateAnyTask(subTask);
         assertEquals(List.of(subTask), tm.getSubTasksList());
@@ -191,7 +191,7 @@ public class TaskManagerTest {
         tm.addTask(epicWithEmptySubTask);
         tm.addTask(subTaskNew);
         SubTask subTask = new SubTask(1L, 3L, "Подзадача 1", "описание подзадачи после обновления",
-                                      Status.DONE, 2022,3, 25, 15);
+                                      Status.DONE, 2023,3, 25, 15);
         tm.updateAnyTask(subTask);
         assertEquals(List.of(subTask), tm.getSubTaskByEpicId(1L));
     }
@@ -312,7 +312,7 @@ public class TaskManagerTest {
     @Test
     void shouldCreateTaskWithStatusNew() {
         Task task1 = tm.createTask("Задача 1", "описание задачи", Status.NEW,
-                                   2022, 3, 25, 15);
+                                   2023, 3, 25, 15);
         assertEquals(taskNew, task1);
         assertEquals(Status.NEW, task1.getStatus());
         assertEquals(1L, task1.getId());
@@ -322,7 +322,7 @@ public class TaskManagerTest {
     @Test
     void shouldCreateTaskWithStatusInProgress() {
         Task task = tm.createTask("Задача 2", "описание задачи", Status.IN_PROGRESS,
-                                  2022, 3, 25, 15);
+                                  2023, 3, 25, 15);
         assertEquals(task, taskInProgress);
         assertEquals(Status.IN_PROGRESS, task.getStatus());
         assertEquals(1L, task.getId());
@@ -332,7 +332,7 @@ public class TaskManagerTest {
     @Test
     void shouldCreateSubTaskWithStatusNew() {
         SubTask subTask = tm.createSubTask(1L, "Подзадача 1", "описание подзадачи",
-                                           Status.NEW, 2022, 3, 25, 15);
+                                           Status.NEW, 2023, 3, 25, 15);
         assertEquals(subTask, subTaskNew);
         assertEquals(Status.NEW, subTask.getStatus());
         assertEquals(1L, subTask.getId());
@@ -342,7 +342,7 @@ public class TaskManagerTest {
     @Test
     void shouldCreateSubTaskWithStatusDone() {
         SubTask subTask = tm.createSubTask(1L, "Подзадача 2", "описание подзадачи",
-                                           Status.DONE, 2022, 3, 25, 15);
+                                           Status.DONE, 2023, 3, 25, 15);
         assertEquals(subTask, subTaskDone);
         assertEquals(Status.DONE, subTask.getStatus());
         assertEquals(1L, subTask.getId());
@@ -362,10 +362,10 @@ public class TaskManagerTest {
     void shouldCreateEpicWithStatusInProgressIfSubTaskNewDone() {
         InMemoryTasksManager.setSubtasks(1L, new SubTask(3L, 1L, "Подзадача 1",
                                                         "описание подзадачи",Status.NEW,
-                                                        2022, 3,25, 15));
+                                                         2023, 3,25, 15));
         InMemoryTasksManager.setSubtasks(2L, new SubTask(3L, 2L, "Подзадача 2",
                                                          "описание подзадачи", Status.DONE,
-                                                         2022, 3,25, 15));
+                                                         2023, 3,25, 15));
         Epic epic = tm.createEpic("Задача 15", "описание задачи");
         assertEquals(epic, epicInProgress);
         assertEquals(Status.IN_PROGRESS, epic.getStatus());
@@ -377,10 +377,10 @@ public class TaskManagerTest {
     void shouldCreateEpicWithStatusInProgressIfSubTaskInProgress() {
         InMemoryTasksManager.setSubtasks(1L,new SubTask(3L, 1L, "Подзадача 1",
                                                         "описание подзадачи", Status.IN_PROGRESS,
-                                                     2022, 3, 25, 15));
+                                                        2023, 3, 25, 15));
         InMemoryTasksManager.setSubtasks(2L,new SubTask(3L, 2L, "Подзадача 2",
                                                         "описание подзадачи", Status.IN_PROGRESS,
-                                                     2022, 3, 25, 15));
+                                                        2023, 3, 25, 15));
         Epic epic = tm.createEpic("Задача 15", "описание задачи");
         assertEquals(epic, epicInProgress);
         assertEquals(Status.IN_PROGRESS, epic.getStatus());
@@ -392,10 +392,10 @@ public class TaskManagerTest {
     void shouldCreateEpicWithStatusInDone() {
         InMemoryTasksManager.setSubtasks(1L, new SubTask(3L, 1L, "Подзадача 1",
                                                          "описание подзадачи", Status.DONE,
-                                                         2022, 3,25, 15));
+                                                         2023, 3,25, 15));
         InMemoryTasksManager.setSubtasks(2L,new SubTask(3L, 2L, "Подзадача 2",
                                                         "описание подзадачи", Status.DONE,
-                                                        2022, 3,25, 15));
+                                                        2023, 3,25, 15));
         Epic epic = tm.createEpic("Задача 15", "описание задачи");
         assertEquals(epic, epicDone);
         assertEquals(Status.DONE, epic.getStatus());
@@ -407,10 +407,10 @@ public class TaskManagerTest {
     void shouldCreateEpicWithStatusNewIfSubTaskNew() {
         InMemoryTasksManager.setSubtasks(1L, new SubTask(3L, 1L, "Подзадача 1",
                                                      "описание подзадачи", Status.NEW,
-                                                     2022, 3,25, 15));
+                                                         2023, 3,25, 15));
         InMemoryTasksManager.setSubtasks(2L, new SubTask(3L, 2L, "Подзадача 2",
                                                          "описание подзадачи", Status.NEW,
-                                                         2022, 3, 25, 15));
+                                                         2023, 3, 25, 15));
         Epic epic = tm.createEpic("Задача 25", "описание задачи");
         assertEquals(epic, epicNew);
         assertEquals(Status.NEW, epic.getStatus());
@@ -455,7 +455,7 @@ public class TaskManagerTest {
         tm.addTask(subTaskDone);
         tm.addTask(taskNew);
         tm.updateAnyTask(new Task(1L, "Задача 1", "новое описание задачи с новым сроком выполнения",
-                                  Status.NEW, 2022, 3, 25, 15)); // не должен добавить
+                                  Status.NEW, 2023, 3, 25, 15)); // не должен добавить
                                    // задачу, в задаче subTaskNew, subTaskDone и taskInProgress
                                    // общая сумма продолжительности будет 24 часа
         assertEquals(List.of(subTaskNew, subTaskDone), tm.getSubTasksList());
@@ -473,7 +473,7 @@ public class TaskManagerTest {
         tm.addTask(subTaskDone);
         tm.addTask(taskNew);
         tm.updateAnyTask(new Epic(1L, "Эпик 1", "описание задачи", List.of(subTaskNew, subTaskDone),
-                                  Status.NEW,2022, 3, 25, 25));
+                                  Status.NEW,2023, 3, 25, 25));
         assertEquals(List.of(subTaskNew, subTaskDone), tm.getSubTasksList());
         assertEquals(List.of(epicWithEmptySubTask), tm.getEpicsList());
         assertEquals(List.of(taskNew), tm.getTasksList());
