@@ -35,13 +35,29 @@ H
 src/META-INF/MANIFEST.MF,e\4\e4b1fd2293ba1e598e6bec4e0ee3b6b6851eb5a2
 N
 .idea/libraries/gson_2_9_0.xml,0\2\029650b3282cd1f60425c91dfbca85f872d242c9
-O
-src/main/java/api/KVServer.java,0\2\0288f0f63bc6b85ebb0f731ac262d8a05fc17861
-G
-src/main/java/Main.java,e\4\e44a8606ce010ad9b89aafdfcee2ab49afbf6d10
-V
-&src/main/java/manager/TaskManager.java,5\f\5f03c550abbf97d76917921c2459c05f5788dd1b
 W
 'src/test/java/test/task/TaskIDTest.java,3\4\34f197540baa35f2fa7c7bcdbdc94c1326ac1e2c
 i
 9recources/forTestIfFileContainsEpicTaskSubtaskWithHistory,a\0\a00ced81ab3a82dc9efaf005f5e9d4166b1eadb2
+^
+.recources/forTestIfFileContainsEpicTaskSubtask,d\9\d9850fa600c04938cba6b927ed05682894187616
+A
+recources/forTest,7\2\7276938b0ed2f93f072425f761f0783fcb4d125f
+S
+#recources/forTestEpicWithoutSubTask,4\6\46a092cbe1c130920f269bbd610b06fcd5b65291
+U
+%src/test/java/test/task/EpicTest.java,6\c\6c8161d353e9a097a34107ad2b1ca3a46c2b97a8
+N
+src/main/java/task/Status.java,9\a\9a7fca047bcc74dc4fa707dd0bfc7575474a3421
+W
+'src/test/java/test/task/StatusTest.java,7\7\77c0fb8083f8251a2918737d0e00f36d1b827425
+X
+(src/test/java/test/task/SubTaskTest.java,7\b\7b27947775b4e122793f22f3339419fe8e9570af
+U
+%src/test/java/test/task/TaskTest.java,f\2\f24c02b25c4f60334483b7302d41c161c6ac748d
+L
+src/main/java/task/Epic.java,1\f\1f1817d460fbc97060f3eddfd654392c1db71648
+O
+src/main/java/task/SubTask.java,8\e\8ed34260a2291009c314affd0d0145a8c7d41257
+b
+2src/test/java/test/history/HistoryManagerTest.java,9\d\9def7c1e0c550a1328ae8055217107e0e1ad2b30

@@ -108,7 +108,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
 
     // восстанавливает историю просмотра по id
-    private static void loadHistory(Long id) {
+    protected static void loadHistory(Long id) {
         if (getTasks().containsKey(id)) {
             historyManager.add(getTasks().get(id));
         }
@@ -121,7 +121,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
 
     // сохраняет все задачи, такси и подзадачи и историю просмотров в файл csv
-    public void save() {
+    protected void save()  {
         String line;
         String firstLine = "id,type,name,status,description,startTime,duration,epic\n";
         try (Writer fileWriter = new FileWriter(filePath, StandardCharsets.UTF_8)) {
@@ -149,6 +149,10 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка в сохранении файла по указанному пути" + filePath);
         }
+    }
+    // вызов метода save для тестов
+    public void getSaveForTest() {
+        save();
     }
 
     //2.5 Добавление новой задачи, эпика, подзадачи. Сохранение задачи в файл.

@@ -1,4 +1,5 @@
 id,type,name,status,description,startTime,duration,epic
-1,TASK,"gg",NEW,"Новое описание задачи",25.05.2023,5
-2,EPIC,"gg",IN_PROGRESS,"Новое описание эпика",25.05.2023,10
+1,TASK,задача 1,NEW,Новое описание задачи,25.05.2023,5
+2,EPIC,gg,IN_PROGRESS,Новое описание эпика 2,25.05.2023,20
+3,SUBTASK,gg,NEW,новое описание 25,25.06.2023,5,2
 

@@ -108,7 +108,7 @@ class FileBackedTasksManagerTest {
         tm = new FileBackedTasksManager("recources/");
         Throwable ex = Assertions.assertThrows(
                 ManagerSaveException.class,
-                () -> tm.save()
+                () -> tm.getSaveForTest()
         );
 
         assertEquals("В указанной директории файла нет или процесс не может получить доступ к файлу," +
@@ -138,7 +138,7 @@ class FileBackedTasksManagerTest {
         tm.addTask(epicWithEmptySubTask);
         tm.addTask(subTaskNew);
         tm.addTask(taskInProgress);
-        tm.save();
+        //tm.save();
         try {
             assertEquals("id,type,name,status,description,startTime,duration,epic\n" +
                                  "2,TASK,Задача 2,IN_PROGRESS,описание задачи,25.03.2023,5\n" +
@@ -158,7 +158,7 @@ class FileBackedTasksManagerTest {
         tm.addTask(subTaskNew);
         tm.addTask(taskInProgress);
         tm.removeById(2L);
-        tm.save();
+       // tm.save();
         try {
             assertEquals("id,type,name,status,description,startTime,duration,epic\n" +
                                  "1,EPIC,Эпик 1,NEW,описание задачи,25.03.2023,15\n" +
@@ -177,7 +177,7 @@ class FileBackedTasksManagerTest {
         tm.addTask(subTaskNew);
         tm.addTask(taskInProgress);
         tm.removeById(1L);
-        tm.save();
+       // tm.save();
         try {
             assertEquals("id,type,name,status,description,startTime,duration,epic\n" +
                                  "2,TASK,Задача 2,IN_PROGRESS,описание задачи,25.03.2023,5",
@@ -197,7 +197,7 @@ class FileBackedTasksManagerTest {
         Epic epic = new Epic(1L, "Эпик 1", "описание эпика после обновления", List.of(subTaskNew),
                              Status.DONE, 2023, 3, 25, 0);
         tm.updateAnyTask(epic);
-        tm.save();
+       // tm.save();
         try {
             assertEquals("id,type,name,status,description,startTime,duration,epic\n" +
                                  "2,TASK,Задача 2,IN_PROGRESS,описание задачи,25.03.2023,5\n" +
@@ -217,7 +217,7 @@ class FileBackedTasksManagerTest {
         tm.addTask(subTaskNew);
         tm.addTask(taskInProgress);
         tm.getTaskById(1L);
-        tm.save();
+       // tm.save();
         try {
             assertEquals("id,type,name,status,description,startTime,duration,epic\n" +
                                  "2,TASK,Задача 2,IN_PROGRESS,описание задачи,25.03.2023,5\n" +
@@ -237,9 +237,9 @@ class FileBackedTasksManagerTest {
         tm.addTask(subTaskNew);
         tm.addTask(taskInProgress);
         tm.getTaskById(1L);
-        tm.save();
+      //  tm.save();
         tm.removeById(1L);
-        tm.save();
+      //  tm.save();
         try {
             assertEquals("id,type,name,status,description,startTime,duration,epic\n" +
                                  "2,TASK,Задача 2,IN_PROGRESS,описание задачи,25.03.2023,5",
@@ -257,7 +257,7 @@ class FileBackedTasksManagerTest {
         tm.addTask(subTaskNew);
         tm.addTask(taskInProgress);
         tm.removeAllTask();
-        tm.save();
+       // tm.save();
         try {
             assertEquals("id,type,name,status,description,startTime,duration,epic",
                          Files.readString(Paths.get("recources/forTest"), StandardCharsets.UTF_8).trim());

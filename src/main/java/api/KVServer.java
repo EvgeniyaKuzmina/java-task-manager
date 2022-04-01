@@ -17,6 +17,10 @@ public class KVServer {
     private HttpServer server;
     private Map<String, String> data = new HashMap<>();
 
+    public String getAPI_KEY() {
+        return API_KEY;
+    }
+
     public KVServer() throws IOException {
         API_KEY = generateApiKey();
         server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
@@ -70,7 +74,23 @@ public class KVServer {
             }
         });
         server.createContext("/load", (h) -> {
-            // TODO Добавьте получение значения по ключу
+            switch (h.getRequestMethod()) {
+                case "GET":
+                    String key = h.getRequestURI().getPath().substring("/load/".length());
+                    if (data.containsKey(key)) {
+                        String result = data.get(key);
+                        sendText(h, result);
+
+                    } else {
+                        System.out.println("Ошибка в указании API_KEY, значения по такому ключу нет");
+                    }
+                    break;
+                default:
+                    System.out.println("/load ждёт GET-запрос, а получил: " + h.getRequestMethod());
+                    h.sendResponseHeaders(405, 0);
+            }
+
+
         });
     }
 
@@ -79,6 +99,10 @@ public class KVServer {
         System.out.println("Открой в браузере http://localhost:" + PORT + "/");
         System.out.println("API_KEY: " + API_KEY);
         server.start();
+    }
+
+    public void stop() {
+        server.stop(0);
     }
 
     private String generateApiKey() {
