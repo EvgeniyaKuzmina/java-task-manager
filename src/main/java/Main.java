@@ -10,11 +10,13 @@ public class Main {
     public static void main(String[] args) {
 
         try {
-            TaskManager taskManager = Managers.getServerManager("http://localhost:8078");
+            HTTPTaskManager taskManager = Managers.getDefault();
 
             HttpTaskServer taskServer = new HttpTaskServer(taskManager);
             taskServer.start();
-            //taskManager.load();
+          //  if (!taskManager.getTasksList().isEmpty()) {
+                taskManager.load();
+          //  }
         } catch (IOException | InterruptedException e) {
             System.out.println("Во время выполнения запроса возникла ошибка.\n" +
                                        "Проверьте, пожалуйста, адрес и повторите попытку.");

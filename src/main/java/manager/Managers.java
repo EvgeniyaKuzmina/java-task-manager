@@ -18,7 +18,7 @@ public class Managers {
     // один как нам сказали getDefault, внутри него вызываю HTTPTaskManager
     // и есть второй метод getServerManager() для текущего спринта, на примере getFileBackedManager, который делала
     // в прошлом спринте для FileBackedTasksManager
-    public static TaskManager getDefault() throws IOException, InterruptedException {
+    public static HTTPTaskManager getDefault() throws IOException, InterruptedException {
         // 1. return new InMemoryTasksManager();
         //2.
         /* try {

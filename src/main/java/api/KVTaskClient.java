@@ -1,5 +1,6 @@
 package api;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -61,11 +62,19 @@ public class KVTaskClient {
         HttpResponse<String> response = client.send(request, handler);
         if (response.statusCode() == 200) {
             JsonElement jsonElement = JsonParser.parseString(response.body());
-            if (!jsonElement.isJsonObject()) { // проверяем, точно ли мы получили JSON-объект
+           // JsonArray jsonArray = jsonElement.getAsJsonArray();
+           // System.out.println(jsonObject);
+            if (!jsonElement.isJsonArray()) { // проверяем, точно ли мы получили JSON-объект
                 return "Ответ от сервера не соответствует ожидаемому.";
             }
-            JsonObject jsonObject = jsonElement.getAsJsonObject();
-            return jsonObject.get(key).getAsString();
+
+            //JsonObject jsonObject = jsonElement.getAsJsonObject();
+            return jsonElement.getAsJsonArray().toString();
+
+           /* if (!jsonElement.isJsonObject()) {
+                return "Ответ от сервера не соответствует ожидаемому.";
+            }
+            return jsonElement.getAsJsonObject().getAsString();*/
         } else {
             return "Что-то пошло не так. Сервер вернул код состояния: " + response.statusCode();
         }

@@ -1,30 +1,22 @@
+
 package test.api;
 
+import api.HTTPTaskManager;
 import api.HttpTaskServer;
-import api.KVServer;
 import com.google.gson.*;
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpContext;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpPrincipal;
-import manager.InMemoryTasksManager;
 import manager.Managers;
 import manager.TaskManager;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import task.Epic;
 import task.Status;
 import task.SubTask;
 import task.Task;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -32,8 +24,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class HttpTaskServerTest {
-    static TaskManager tm;
+class HTTPTaskManagerTest {
     static Task taskNew;
     static Task taskInProgress;
     static Epic epicWithEmptySubTask;
@@ -43,6 +34,7 @@ class HttpTaskServerTest {
     static Epic epicInProgress;
     static Epic epicDone;
     static Epic epicNew;
+    static HTTPTaskManager tm;
     static Gson gson;
     static HttpClient client;
     static URI url;
@@ -91,54 +83,23 @@ class HttpTaskServerTest {
     }
 
 
-    // вот этот тест падает с ошибкой  java.io.IOException: HTTP/1.1 header parser received no bytes
-    //ошибка возникает, как я понимаю в строке HttpResponse<String> response = client.send(requestPost, handler);
+    // здесь я просто пытаюсь понять как работает метод load() и что он работает корректно. Но он зависает на выполнении программы.
+    //Если я запускаю код и дебажу его по старинке, своим любимым println, то метод load(String key) класса KVTaskClient возвращает мне String json как надо
+    // То есть я получаю вот такое что-то например
+    // [{"id":1,"name":"Задача 1","description":"описание задачи","status":"NEW","startTime":"2023-03-25","duration":"PT9H"},
+    // {"id":2,"name":"Задача 2","description":"описание задачи","status":"IN_PROGRESS","startTime":"2023-03-25","duration":"PT7H"}]
+    // А в следующей строке ArrayList<Task> tasks = gson.fromJson(taskClient.load("task"), new TypeToken<ArrayList<Task>>() {
+    //        }.getType()); выполнение кода зависает
     @Test
-    void shouldReturnTrueCreateTaskOnTheServer() throws IOException, InterruptedException {
-        url = URI.create("http://localhost:8080/tasks/task/");
-        String json = gson.toJson(taskNew);
-
-        final HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
-        System.out.println(body.toString());
-        HttpRequest requestPost = HttpRequest.newBuilder()
-                                             .uri(url)
-                                             .version(HttpClient.Version.HTTP_1_1)
-                                             .POST(body)
-                                             .build();
-        System.out.println(requestPost.toString());
-        HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
-        HttpResponse<String> response = client.send(requestPost, handler);
-        assertEquals(200, response.statusCode());
-        assertEquals(json, response.body());
-    }
-
-    @Test
-    void shouldReturnTrueGetTaskFromServer() throws IOException, InterruptedException {
-        url = URI.create("http://localhost:8080/tasks/task/");
-        HttpRequest requestGet = HttpRequest.newBuilder().uri(url).GET().build();
-        HttpResponse<String> response = client.send(requestGet, HttpResponse.BodyHandlers.ofString());
-        if (response.statusCode() == 200) {
-            JsonElement jsonElement = JsonParser.parseString(response.body());
-            if (!jsonElement.isJsonObject()) {
-                System.out.println("Ответ от сервера не соответствует ожидаемому.");
-            }
-            JsonObject jsonObject = jsonElement.getAsJsonObject();
-           // System.out.println(jsonObject.toString());
-
-        } else {
-            System.out.println( "Что-то пошло не так. Сервер вернул код состояния: " + response.statusCode());
-        }
-
+    void save() throws IOException, InterruptedException {
         tm.addTask(taskNew);
-        assertEquals(List.of(taskNew), tm.getTasksList());
+        tm.addTask(taskInProgress);
+        tm.load();
+        assertEquals(List.of(taskNew, taskInProgress), tm.getTasksList());
+        assertEquals(List.of(taskNew, taskInProgress), tm.getTasksList());
     }
 
-
-
-    @AfterAll
-    static void stop() {
-        httpTaskServer.stop();
+    @Test
+    void load2() {
     }
-
-
 }
