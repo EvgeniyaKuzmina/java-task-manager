@@ -88,13 +88,13 @@ public class HTTPTaskManager extends FileBackedTasksManager {
             tasks.forEach(t -> setTasks(t.getId(), t));
         }
 
-        String jsonEpic = taskClient.load("epic");
+       String jsonEpic = taskClient.load("epic");
         if (notJson(jsonEpic)){
             return;
         }
         List<Epic> epics = gson.fromJson(jsonEpic, new TypeToken<ArrayList<Epic>>() {
         }.getType());
-        if (!tasks.isEmpty()) {
+        if (!epics.isEmpty()) {
             epics.forEach(t -> setEpics(t.getId(), t));
         }
 
@@ -104,7 +104,7 @@ public class HTTPTaskManager extends FileBackedTasksManager {
         }
         List<SubTask> subtasks = gson.fromJson(jsonSubTask, new TypeToken<ArrayList<SubTask>>() {
         }.getType());
-        if (!tasks.isEmpty()) {
+        if (!subtasks.isEmpty()) {
             subtasks.forEach(t -> setSubtasks(t.getId(), t));
         }
 
@@ -118,6 +118,7 @@ public class HTTPTaskManager extends FileBackedTasksManager {
             history.forEach(t -> loadHistory(t.getId()));
         }
     }
+
     private boolean notJson(String json) {
         if (json.contains("Что-то пошло не так. Сервер вернул код состояния:")){
             System.out.println("Получили не json");
