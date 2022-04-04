@@ -20,7 +20,7 @@ public class HTTPTaskManager extends FileBackedTasksManager {
     private final Gson gson;
 
     public HTTPTaskManager(URI url) throws IOException, InterruptedException {
-        super("recources/recources");
+        super(null);
         taskClient = new KVTaskClient(url);
         gson = new GsonBuilder()
                 .registerTypeAdapter(
@@ -79,41 +79,54 @@ public class HTTPTaskManager extends FileBackedTasksManager {
     // загружаем все задачи и историю с сервера KVServer
     public void load() throws IOException, InterruptedException {
         String jsonTask = taskClient.load("task");
-
-        if (jsonTask.equals("Ответ от сервера не соответствует ожидаемому.")){
-            System.out.println("Получили не jsonObject");
+        if (notJson(jsonTask)){
             return;
         }
-        System.out.println(jsonTask);
-        ArrayList<Task> tasks = gson.fromJson(taskClient.load("task"), new TypeToken<ArrayList<Task>>() {
+        ArrayList<Task> tasks = gson.fromJson(jsonTask, new TypeToken<ArrayList<Task>>() {
         }.getType());
-        System.out.println(jsonTask);
         if (!tasks.isEmpty()) {
             tasks.forEach(t -> setTasks(t.getId(), t));
         }
-     //   System.out.println(jsonTask);
 
         String jsonEpic = taskClient.load("epic");
-        List<Epic> epics = gson.fromJson(taskClient.load("epic"), new TypeToken<ArrayList<Epic>>() {
+        if (notJson(jsonEpic)){
+            return;
+        }
+        List<Epic> epics = gson.fromJson(jsonEpic, new TypeToken<ArrayList<Epic>>() {
         }.getType());
-        if (tasks != null) {
+        if (!tasks.isEmpty()) {
             epics.forEach(t -> setEpics(t.getId(), t));
         }
 
         String jsonSubTask = taskClient.load("subtask");
-        List<SubTask> subtasks = gson.fromJson(taskClient.load("subtask"), new TypeToken<ArrayList<SubTask>>() {
+        if (notJson(jsonSubTask)){
+            return;
+        }
+        List<SubTask> subtasks = gson.fromJson(jsonSubTask, new TypeToken<ArrayList<SubTask>>() {
         }.getType());
-        if (tasks != null) {
+        if (!tasks.isEmpty()) {
             subtasks.forEach(t -> setSubtasks(t.getId(), t));
         }
 
         String jsonHistory = taskClient.load("history");
-        List<Task> history = gson.fromJson(taskClient.load("history"), new TypeToken<ArrayList<Task>>() {
+        if (notJson(jsonHistory)){
+            return;
+        }
+        List<Task> history = gson.fromJson(jsonHistory, new TypeToken<ArrayList<Task>>() {
         }.getType());
-        if (history != null) {
+        if (!history.isEmpty()) {
             history.forEach(t -> loadHistory(t.getId()));
         }
     }
+    private boolean notJson(String json) {
+        if (json.contains("Что-то пошло не так. Сервер вернул код состояния:")){
+            System.out.println("Получили не json");
+            return true;
+        }
+        return false;
+    }
+
+
 
     //2.5 Добавление новой задачи, эпика, подзадачи. Сохранение задачи в файл.
     @Override

@@ -27,13 +27,14 @@ public class KVTaskClient {
         kvServer.start();
         API_KEY = kvServer.getAPI_KEY();
         requestBuilder = HttpRequest.newBuilder();
-        client = HttpClient.newHttpClient();
+
 
     }
 
 
     protected void put(String key, String json) throws IOException,
                                                        InterruptedException {//должен сохранять состояние менеджера задач через запрос POST /save/<ключ>?API_KEY=.
+        client = HttpClient.newHttpClient();
         URI urlKey = URI.create(url.toString() + "/save/" + key + "?API_KEY=" + API_KEY);
         HttpRequest request = requestBuilder
                 .POST(HttpRequest.BodyPublishers.ofString(json))
@@ -42,6 +43,7 @@ public class KVTaskClient {
                 .header("Accept", "application/json")
                 .build();
         HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
+
         HttpResponse<String> response = client.send(request, handler);
         if (response.statusCode() != 200) {
             System.out.println("Что-то пошло не так. Сервер вернул код состояния: " + response.statusCode());
@@ -51,6 +53,7 @@ public class KVTaskClient {
 
     protected String load(String key) throws IOException,
                                              InterruptedException { //должен возвращать состояние менеджера задач через запрос GET /load/<ключ>?API_KEY=
+        client = HttpClient.newHttpClient();
         URI urlKey = URI.create(url.toString() + "/load/" + key + "?API_KEY=" + API_KEY);
         HttpRequest request = requestBuilder
                 .GET()
@@ -61,7 +64,8 @@ public class KVTaskClient {
         HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
         HttpResponse<String> response = client.send(request, handler);
         if (response.statusCode() == 200) {
-            JsonElement jsonElement = JsonParser.parseString(response.body());
+            return response.body();
+           /* JsonElement jsonElement = JsonParser.parseString(response.body());
            // JsonArray jsonArray = jsonElement.getAsJsonArray();
            // System.out.println(jsonObject);
             if (!jsonElement.isJsonArray()) { // проверяем, точно ли мы получили JSON-объект
@@ -71,7 +75,7 @@ public class KVTaskClient {
             //JsonObject jsonObject = jsonElement.getAsJsonObject();
             return jsonElement.getAsJsonArray().toString();
 
-           /* if (!jsonElement.isJsonObject()) {
+            if (!jsonElement.isJsonObject()) {
                 return "Ответ от сервера не соответствует ожидаемому.";
             }
             return jsonElement.getAsJsonObject().getAsString();*/

@@ -62,12 +62,13 @@ class HTTPTaskManagerTest {
                         (JsonSerializer<Duration>) (srs, typeOfSrs, context) -> new JsonPrimitive(srs.toString())
                 )
                 .create();
-        client = HttpClient.newHttpClient();
+
         tm = Managers.getDefault();
     }
 
     @BeforeEach
     void beforeEach() throws IOException, InterruptedException {
+        client = HttpClient.newHttpClient();
 
         taskNew = new Task(1L, "Задача 1", "описание задачи", Status.NEW, 2023, 3, 25, 9);
         taskInProgress = new Task(2L, "Задача 2", "описание задачи", Status.IN_PROGRESS, 2023, 3, 25, 7);
@@ -96,7 +97,7 @@ class HTTPTaskManagerTest {
         tm.addTask(taskInProgress);
         tm.load();
         assertEquals(List.of(taskNew, taskInProgress), tm.getTasksList());
-        assertEquals(List.of(taskNew, taskInProgress), tm.getTasksList());
+
     }
 
     @Test

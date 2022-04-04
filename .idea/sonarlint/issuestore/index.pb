@@ -29,14 +29,10 @@ N
 src/main/java/task/TaskID.java,2\d\2d4de915cc35b84fc51f325e4c5b3496fd3e48c4
 d
 4src/main/java/exceptions/WrongArgumentException.java,f\3\f3e196945384917b4da02ad4fc8c7cedeab4e0f8
-C
-java-sprint2-hw.iml,d\d\dd86aa360b270d32ce750cd9f6b0370a4b4495d6
 H
 src/META-INF/MANIFEST.MF,e\4\e4b1fd2293ba1e598e6bec4e0ee3b6b6851eb5a2
 N
 .idea/libraries/gson_2_9_0.xml,0\2\029650b3282cd1f60425c91dfbca85f872d242c9
-W
-'src/test/java/test/task/TaskIDTest.java,3\4\34f197540baa35f2fa7c7bcdbdc94c1326ac1e2c
 i
 9recources/forTestIfFileContainsEpicTaskSubtaskWithHistory,a\0\a00ced81ab3a82dc9efaf005f5e9d4166b1eadb2
 ^
@@ -45,22 +41,12 @@ A
 recources/forTest,7\2\7276938b0ed2f93f072425f761f0783fcb4d125f
 S
 #recources/forTestEpicWithoutSubTask,4\6\46a092cbe1c130920f269bbd610b06fcd5b65291
-U
-%src/test/java/test/task/EpicTest.java,6\c\6c8161d353e9a097a34107ad2b1ca3a46c2b97a8
 N
 src/main/java/task/Status.java,9\a\9a7fca047bcc74dc4fa707dd0bfc7575474a3421
-W
-'src/test/java/test/task/StatusTest.java,7\7\77c0fb8083f8251a2918737d0e00f36d1b827425
-X
-(src/test/java/test/task/SubTaskTest.java,7\b\7b27947775b4e122793f22f3339419fe8e9570af
-U
-%src/test/java/test/task/TaskTest.java,f\2\f24c02b25c4f60334483b7302d41c161c6ac748d
 L
 src/main/java/task/Epic.java,1\f\1f1817d460fbc97060f3eddfd654392c1db71648
 O
 src/main/java/task/SubTask.java,8\e\8ed34260a2291009c314affd0d0145a8c7d41257
-b
-2src/test/java/test/history/HistoryManagerTest.java,9\d\9def7c1e0c550a1328ae8055217107e0e1ad2b30
 L
 src/main/java/task/Task.java,0\2\0264a9c705d92f6029f4b2eb33d119c06e12422b
 _
@@ -69,9 +55,9 @@ V
 &src/main/java/manager/TaskManager.java,5\f\5f03c550abbf97d76917921c2459c05f5788dd1b
 C
 recources/recources,a\7\a7ff5a4ee797cc1bec07b5ca45f6154b4184e875
-j
-:src/test/java/test/manager/FileBackedTasksManagerTest.java,2\0\200bdf3eb0476d826c9fd2ce5ff55b3828418c63
-_
-/src/test/java/test/manager/TaskManagerTest.java,7\2\7259a347ff75a1c2a31de44ee5853d2d726148de
 a
 1src/main/java/manager/FileBackedTasksManager.java,a\3\a3186c7206153dc9897d6ae16a1d88e6b9dbd266
+U
+%src/main/java/api/HttpTaskServer.java,2\0\20b5fa4694e09694d2f50236893e34ba763f2f89
+S
+#src/main/java/manager/Managers.java,8\d\8d26236945c1d60333032467ce1576bcb68ea7ec
