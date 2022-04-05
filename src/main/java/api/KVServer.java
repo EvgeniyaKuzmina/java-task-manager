@@ -30,6 +30,7 @@ public class KVServer {
                 switch (h.getRequestMethod()) {
                     case "GET":
                         sendText(h, API_KEY);
+                        h.sendResponseHeaders(200, 0);
                         break;
                     default:
                         System.out.println("/register ждёт GET-запрос, а получил " + h.getRequestMethod());
@@ -74,24 +75,29 @@ public class KVServer {
             }
         });
         server.createContext("/load", (h) -> {
+            try {
             switch (h.getRequestMethod()) {
                 case "GET":
                     String key = h.getRequestURI().getPath().substring("/load/".length());
                     if (data.containsKey(key)) {
                         String result = data.get(key);
                         sendText(h, result);
-
+                        h.sendResponseHeaders(200, 0);
                     } else {
                         System.out.println("Ошибка в указании API_KEY, значения по такому ключу нет");
+                        h.sendResponseHeaders(400, 0);
                     }
                     break;
                 default:
                     System.out.println("/load ждёт GET-запрос, а получил: " + h.getRequestMethod());
                     h.sendResponseHeaders(405, 0);
+                    break;
             }
-
-
+        } finally {
+                h.close();
+        }
         });
+
     }
 
     public void start() {
@@ -119,7 +125,6 @@ public class KVServer {
     }
 
     protected void sendText(HttpExchange h, String text) throws IOException {
-        //byte[] resp = jackson.writeValueAsBytes(obj);
         byte[] resp = text.getBytes("UTF-8");
         h.getResponseHeaders().add("Content-Type", "application/json");
         h.sendResponseHeaders(200, resp.length);

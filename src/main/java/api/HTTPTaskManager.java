@@ -8,20 +8,21 @@ import task.SubTask;
 import task.Task;
 
 import java.io.IOException;
-import java.net.URI;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
+
+//реализация менеджера для сохранения задачи на сервере и загрузки задач с сервера
 public class HTTPTaskManager extends FileBackedTasksManager {
     private final KVTaskClient taskClient;
     private final Gson gson;
 
-    public HTTPTaskManager(URI url) throws IOException, InterruptedException {
+    public HTTPTaskManager(KVTaskClient kvTaskClient) throws IOException, InterruptedException {
         super(null);
-        taskClient = new KVTaskClient(url);
+        taskClient = kvTaskClient;
         gson = new GsonBuilder()
                 .registerTypeAdapter(
                         LocalDate.class,
@@ -40,36 +41,25 @@ public class HTTPTaskManager extends FileBackedTasksManager {
                         (JsonSerializer<Duration>) (srs, typeOfSrs, context) -> new JsonPrimitive(srs.toString())
                 )
                 .create();
-        //load();
+        load();
     }
 
     // сохраняем все задачи и историю на сервере KVServer
     @Override
     public void save() {
         try {
-            List<Task> tasks = new ArrayList();
+            List<Task> tasks = new ArrayList(super.getTasksList());
+            taskClient.put("task", gson.toJson(tasks));
+
+            List<Epic> epic = new ArrayList(super.getEpicsList());
+            taskClient.put("epic", gson.toJson(epic));
+
+            List<SubTask> subTask = new ArrayList(super.getSubTasksList());
+            taskClient.put("subtask", gson.toJson(subTask));
+
             List<Task> history = new ArrayList(super.history());
+            taskClient.put("history", gson.toJson(history));
 
-            tasks.addAll(super.getTasksList());
-             if (!tasks.isEmpty()) {
-                taskClient.put("task", gson.toJson(tasks));
-                tasks.clear();
-            }
-
-            tasks.addAll(super.getEpicsList());
-            if (!tasks.isEmpty()) {
-                taskClient.put("epic", gson.toJson(tasks));
-                tasks.clear();
-            }
-            tasks.addAll((super.getSubTasksList()));
-            if (!tasks.isEmpty()) {
-                taskClient.put("subtask", gson.toJson(tasks));
-                tasks.clear();
-            }
-
-            if (!history.isEmpty()) {
-                taskClient.put("history", gson.toJson(tasks));
-            }
         } catch (IOException | InterruptedException e) {
             System.out.println(
                     "Во время выполнения запроса возникла ошибка. Проверьте, пожалуйста, адрес и повторите попытку.");
@@ -78,56 +68,58 @@ public class HTTPTaskManager extends FileBackedTasksManager {
 
     // загружаем все задачи и историю с сервера KVServer
     public void load() throws IOException, InterruptedException {
-        String jsonTask = taskClient.load("task");
-        if (notJson(jsonTask)){
+        String json = taskClient.load("task");
+        if (notJsonOrEmpty(json)) {
             return;
         }
-        ArrayList<Task> tasks = gson.fromJson(jsonTask, new TypeToken<ArrayList<Task>>() {
+        ArrayList<Task> tasks = gson.fromJson(json, new TypeToken<ArrayList<Task>>() {
         }.getType());
         if (!tasks.isEmpty()) {
             tasks.forEach(t -> setTasks(t.getId(), t));
         }
 
-       String jsonEpic = taskClient.load("epic");
-        if (notJson(jsonEpic)){
+        json = taskClient.load("epic");
+        if (notJsonOrEmpty(json)) {
             return;
         }
-        List<Epic> epics = gson.fromJson(jsonEpic, new TypeToken<ArrayList<Epic>>() {
+        ArrayList<Epic> epics = gson.fromJson(json, new TypeToken<ArrayList<Epic>>() {
         }.getType());
         if (!epics.isEmpty()) {
             epics.forEach(t -> setEpics(t.getId(), t));
         }
 
-        String jsonSubTask = taskClient.load("subtask");
-        if (notJson(jsonSubTask)){
+        json = taskClient.load("subtask");
+        if (notJsonOrEmpty(json)) {
             return;
         }
-        List<SubTask> subtasks = gson.fromJson(jsonSubTask, new TypeToken<ArrayList<SubTask>>() {
+        ArrayList<SubTask> subtasks = gson.fromJson(json, new TypeToken<ArrayList<SubTask>>() {
         }.getType());
         if (!subtasks.isEmpty()) {
             subtasks.forEach(t -> setSubtasks(t.getId(), t));
         }
 
-        String jsonHistory = taskClient.load("history");
-        if (notJson(jsonHistory)){
+        json = taskClient.load("history");
+        if (notJsonOrEmpty(json)) {
             return;
         }
-        List<Task> history = gson.fromJson(jsonHistory, new TypeToken<ArrayList<Task>>() {
+        ArrayList<Task> history = gson.fromJson(json, new TypeToken<ArrayList<Task>>() {
         }.getType());
         if (!history.isEmpty()) {
             history.forEach(t -> loadHistory(t.getId()));
         }
     }
 
-    private boolean notJson(String json) {
-        if (json.contains("Что-то пошло не так. Сервер вернул код состояния:")){
+    private boolean notJsonOrEmpty(String json) {
+        if (json.contains("Что-то пошло не так. Сервер вернул код состояния:")) {
+            System.out.println("Получили не json");
+            return true;
+        }
+        if (json.contains("Задач с ключом")) {
             System.out.println("Получили не json");
             return true;
         }
         return false;
     }
-
-
 
     //2.5 Добавление новой задачи, эпика, подзадачи. Сохранение задачи в файл.
     @Override

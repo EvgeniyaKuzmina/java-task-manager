@@ -57,11 +57,11 @@ public class InMemoryTasksManager implements TaskManager {
     public List<SubTask> getSubTaskByEpicId(Long epicId) {
         if (epicId <= 0) {
             System.err.println(Answers.WRONG_ID);
-            return List.of();
+            return Collections.emptyList();
         }
         if (!epics.containsKey(epicId)) {
             System.out.println(Answers.NO_EPIC_WITH_ID.getAnswer());
-            return List.of();
+            return Collections.emptyList();
         }
         for (SubTask subTask : epics.get(epicId).getSubtasks()) {
             historyManager.add(subTask);

@@ -19,8 +19,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+// реализация сервера для взаимодействия с задачами, эпиками, подзадачами и историей (создание,  добавление, удаление)
 public class HttpTaskServer {
 
     private static final int PORT = 8080;
@@ -28,7 +30,6 @@ public class HttpTaskServer {
     private static HttpServer httpServer;
     private final TaskManager tasksManager;
     Gson gson;
-
 
     public HttpTaskServer(TaskManager tasksManager) throws IOException {
         this.tasksManager = tasksManager;
@@ -59,11 +60,13 @@ public class HttpTaskServer {
 
     }
 
+    // метод запуска сервера
     public static void start() {
         System.out.println("Запускаем сервер на порту " + PORT);
         httpServer.start();
     }
 
+    //метод остановки сервера
     public static void stop() {
         httpServer.stop(0);
     }
@@ -83,8 +86,13 @@ public class HttpTaskServer {
                         response = tasksManager.getPrioritizedTasks().toString();
                     } else {
                         Long id = Long.parseLong(query.split("=")[1]);
-                        response = tasksManager.getTaskById(id).toString();
+                        if (tasksManager.getTaskById(id) == null) {
+                            response = "Задач с таким id нет";
+                        } else {
+                            response = tasksManager.getTaskById(id).toString();
+                        }
                     }
+                    httpExchange.sendResponseHeaders(200, 0);
                     break;
                 case "DELETE":
                     if (query != null) {
@@ -95,11 +103,14 @@ public class HttpTaskServer {
                         tasksManager.removeAllTask();
                         response = "Все задачи удалены";
                     }
+                    httpExchange.sendResponseHeaders(200, 0);
                     break;
                 default:
-                    response = "Метод должен быть GET или DELETE. Вы использовали какой-то другой метод!";
+                    response = "Метод должен быть GET или DELETE. Вы использовали какой-то другой метод " +
+                            "или ошибка в url адресе!";
+                    httpExchange.sendResponseHeaders(400, 0);
+                    break;
             }
-            httpExchange.sendResponseHeaders(200, 0);
             try (OutputStream os = httpExchange.getResponseBody()) {
                 os.write(response.getBytes());
             }
@@ -118,6 +129,7 @@ public class HttpTaskServer {
                 case "GET":
                     List<Task> allTasks = new ArrayList<>(tasksManager.getTasksList());
                     response = allTasks.toString();
+                    httpExchange.sendResponseHeaders(200, 0);
                     break;
                 case "POST":
                     InputStream inputStream = httpExchange.getRequestBody();
@@ -125,6 +137,7 @@ public class HttpTaskServer {
                     JsonElement jsonElement = JsonParser.parseString(body);
                     if (!jsonElement.isJsonObject()) { // проверяем, точно ли мы получили JSON-объект
                         System.out.println("Ответ от сервера не соответствует ожидаемому.");
+                        httpExchange.sendResponseHeaders(500, 0);
                         return;
                     }
                     JsonObject jsonObject = jsonElement.getAsJsonObject();
@@ -132,25 +145,25 @@ public class HttpTaskServer {
                         Task task = gson.fromJson(body, Task.class);
                         tasksManager.updateAnyTask(task);
                         response = task.toString();
-
                     } else {
                         Task task = createTaskFromJson(jsonObject);
                         tasksManager.addTask(task);
                         response = task.toString();
                     }
+                    httpExchange.sendResponseHeaders(200, 0);
                     break;
                 default:
-                    response = "Метод должен быть GET или POST. Вы использовали какой-то другой метод!";
+                    response = "Метод должен быть GET или POST. Вы использовали какой-то другой метод" +
+                            " или ошибка в url адресе!";
+                    httpExchange.sendResponseHeaders(400, 0);
                     break;
             }
 
-            httpExchange.sendResponseHeaders(200, 0);
 
             try (OutputStream os = httpExchange.getResponseBody()) {
                 os.write(response.getBytes());
             }
         }
-
 
         // создаёт и возвращает новый объект Task
         private Task createTaskFromJson(JsonObject jsonObject) {
@@ -163,7 +176,6 @@ public class HttpTaskServer {
             int day = Integer.parseInt(jsonObject.get("day").toString());
             int duration = Integer.parseInt(jsonObject.get("duration").toString());
             return tasksManager.createTask(name, description, status, year, month, day, duration);
-
         }
     }
 
@@ -179,6 +191,7 @@ public class HttpTaskServer {
                 case "GET":
                     List<Task> allTasks = new ArrayList<>(tasksManager.getEpicsList());
                     response = allTasks.toString();
+                    httpExchange.sendResponseHeaders(200, 0);
                     break;
                 case "POST":
                     InputStream inputStream = httpExchange.getRequestBody();
@@ -187,6 +200,7 @@ public class HttpTaskServer {
 
                     if (!jsonElement.isJsonObject()) { // проверяем, точно ли мы получили JSON-объект
                         System.out.println("Ответ от сервера не соответствует ожидаемому.");
+                        httpExchange.sendResponseHeaders(500, 0);
                         return;
                     }
                     JsonObject jsonObject = jsonElement.getAsJsonObject();
@@ -199,14 +213,14 @@ public class HttpTaskServer {
                         tasksManager.addTask(epic);
                         response = epic.toString();
                     }
+                    httpExchange.sendResponseHeaders(200, 0);
                     break;
                 default:
-                    response = "Метод должен быть GET или POST. Вы использовали какой-то другой метод!";
+                    response = "Метод должен быть GET или POST. Вы использовали какой-то другой метод " +
+                            "или ошибка в url адресе!";
+                    httpExchange.sendResponseHeaders(400, 0);
                     break;
             }
-
-            httpExchange.sendResponseHeaders(200, 0);
-
             try (OutputStream os = httpExchange.getResponseBody()) {
                 os.write(response.getBytes());
             }
@@ -218,7 +232,6 @@ public class HttpTaskServer {
             String description = jsonObject.get("description").toString().split("\"")[1];
             return tasksManager.createEpic(name, description);
         }
-
     }
 
     // реализация дла эндпоинта "/tasks/subtask"
@@ -237,7 +250,11 @@ public class HttpTaskServer {
                     } else {
                         Long id = Long.parseLong(query.split("=")[1]);
                         response = tasksManager.getSubTaskByEpicId(id).toString();
+                        if (response.equals(Collections.emptyList().toString())) {
+                            response = "Эпика с таким id нет";
+                        }
                     }
+                    httpExchange.sendResponseHeaders(200, 0);
                     break;
                 case "POST":
                     InputStream inputStream = httpExchange.getRequestBody();
@@ -246,6 +263,7 @@ public class HttpTaskServer {
 
                     if (!jsonElement.isJsonObject()) { // проверяем, точно ли мы получили JSON-объект
                         System.out.println("Ответ от сервера не соответствует ожидаемому.");
+                        httpExchange.sendResponseHeaders(500, 0);
                         return;
                     }
                     JsonObject jsonObject = jsonElement.getAsJsonObject();
@@ -258,12 +276,14 @@ public class HttpTaskServer {
                         tasksManager.addTask(subtask);
                         response = subtask.toString();
                     }
+                    httpExchange.sendResponseHeaders(200, 0);
                     break;
                 default:
-                    response = "Метод должен быть GET или POST.Вы использовали какой-то другой метод!";
+                    response = "Метод должен быть GET или POST. Вы использовали какой-то другой метод " +
+                            "или ошибка в url адресе!";
+                    httpExchange.sendResponseHeaders(400, 0);
                     break;
             }
-            httpExchange.sendResponseHeaders(200, 0);
             try (OutputStream os = httpExchange.getResponseBody()) {
                 os.write(response.getBytes());
             }
@@ -290,9 +310,18 @@ public class HttpTaskServer {
         public void handle(HttpExchange httpExchange) throws IOException {
             String method = httpExchange.getRequestMethod();
             System.out.println("Началась обработка " + method + " запроса от клиента.");
-            String response = tasksManager.history().toString();
-            httpExchange.sendResponseHeaders(200, 0);
-
+            String response;
+            switch (method) {
+                case "GET":
+                    response = tasksManager.history().toString();
+                    httpExchange.sendResponseHeaders(200, 0);
+                    break;
+                default:
+                    response = "Метод должен быть GET или POST. Вы использовали какой-то другой метод " +
+                            "или ошибка в url адресе!";
+                    httpExchange.sendResponseHeaders(400, 0);
+                    break;
+            }
             try (OutputStream os = httpExchange.getResponseBody()) {
                 os.write(response.getBytes());
             }

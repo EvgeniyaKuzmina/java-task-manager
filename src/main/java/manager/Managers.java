@@ -1,6 +1,7 @@
 package manager;
 
 import api.HTTPTaskManager;
+import api.KVTaskClient;
 import exceptions.ManagerSaveException;
 
 import java.io.IOException;
@@ -8,7 +9,6 @@ import java.net.URI;
 import java.nio.file.Paths;
 
 public class Managers {
-
 
     // на вебинаре нам сказали, что всё же должен быть только метод getDefault, который из спринта в спринт менял внутри себя класс который он вызывает.
     // сперва мы должны были в нём вызвать InMemoryTasksManager
@@ -18,7 +18,7 @@ public class Managers {
     // один как нам сказали getDefault, внутри него вызываю HTTPTaskManager
     // и есть второй метод getServerManager() для текущего спринта, на примере getFileBackedManager, который делала
     // в прошлом спринте для FileBackedTasksManager
-    public static HTTPTaskManager getDefault() throws IOException, InterruptedException {
+    public static HTTPTaskManager getDefault(KVTaskClient kvTaskClient) throws IOException, InterruptedException { // использую этот метод для тестов
         // 1. return new InMemoryTasksManager();
         //2.
         /* try {
@@ -28,7 +28,7 @@ public class Managers {
                    return null;
                 }*/
         //3.
-        return new HTTPTaskManager(URI.create("http://localhost:8078"));
+        return new HTTPTaskManager(kvTaskClient);
     }
 
     public static TaskManager getFileBackedManager(String filePath) {
@@ -40,7 +40,7 @@ public class Managers {
         }
     }
 
-    public static TaskManager getServerManager(String url) throws IOException, InterruptedException {
-        return new HTTPTaskManager(URI.create(url));
+    public static TaskManager getServerManager(KVTaskClient kvTaskClient) throws IOException, InterruptedException {
+        return new HTTPTaskManager(kvTaskClient);
     }
 }
