@@ -16,8 +16,6 @@ Common big task which can be separate to different small subtask.
 #### Task
 It is independent task
 
----
-
 All types of tasks have:
  1. title 
  2. description 
@@ -35,6 +33,7 @@ Tasks can have next status:
  
  If some epic`s subtasks have status NEW, some have DONE, or IN_PROGRESS — common epic has status IN_PROGRESS
  
+ ---
  
  #### Manager of tasks
   Class for the manager object. It launched at the start of the program and manage all tasks. The following functions  implemented in it:
