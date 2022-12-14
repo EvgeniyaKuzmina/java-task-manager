@@ -23,5 +23,7 @@ All types of tasks can have next  status:
  * DONE — the task is completed
  
  If all subtasks have status DONE — so  common epic has status DONE
+ 
  If all subtasks have status NEW — so common  epic has status NEW
+ 
  If some epic`s subtasks have status NEW, some have DONE, or IN_PROGRESS — common epic has status IN_PROGRESS
