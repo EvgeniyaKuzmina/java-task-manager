@@ -17,7 +17,14 @@ Common big task which can be separate to different small subtask.
 It is independent task
 
 ---
-All types of tasks can have next  status:
+
+All types of tasks have:
+ 1. title 
+ 2. description 
+ 3. id 
+ 4. status 
+
+Tasks can have next status:
  * NEW — the task has just been created, but it has not yet been started
  * IN_PROGRESS — the task is being worked on
  * DONE — the task is completed
